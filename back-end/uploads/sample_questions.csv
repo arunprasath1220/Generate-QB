@@ -1,0 +1,6 @@
+exam_name,unit,topic,mark,question,answer,course_code,type,option_a,option_b,option_c,option_d
+Mid Term,Unit 1,Stacks and Queues,3,What is the difference between stack and queue in DATA STRUCTURES?,Stack is LIFO (Last In First Out) whereas Queue is FIFO (First In First Out).,22CB203,Descriptive,,,,
+Mid Term,Unit 1,Arrays,2,Which of the following is a linear data structure?,Array is a linear data structure.,22CB203,MCQ,Array,Tree,Graph,HashMap
+Final Exam,Unit 2,Linked List,5,Explain singly linked list with example.,A singly linked list is a list of nodes where each node points to the next.,22CB203,Descriptive,,,,
+Final Exam,Unit 3,Trees,4,Which data structure is used for hierarchical data?,Tree is used to represent hierarchical data.,22CB203,MCQ,Tree,Array,Stack,Queue
+Quiz,Unit 4,Graphs,3,What is a graph in DATA STRUCTURES?,Graph is a set of nodes connected by edges.,22CB203,Descriptive,,,,

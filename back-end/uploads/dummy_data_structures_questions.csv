@@ -1,0 +1,11 @@
+exam_name,unit,topic,mark,question,answer,course_code,type,option_a,option_b,option_c,option_d
+Midterm,1,Stacks,1,Which of the following is a LIFO structure?,Stack,22CB203,MCQ,Queue,Stack,Array,Linked List
+Midterm,2,Queues,2,Explain the difference between linear and circular queues.,Linear queues have a fixed end while circular queues wrap around.,22CB203,Theory,,,,
+Midterm,3,Trees,3,Describe binary tree traversal methods.,"Inorder, Preorder, and Postorder.",22CB203,Theory,,,,
+Midterm,4,Graphs,4,What is a graph and list its types.,"Graph is a collection of nodes and edges. Types: Directed, Undirected, etc.",22CB203,Theory,,,,
+Midterm,5,Sorting,5,Explain Merge Sort with example.,Merge Sort is a divide and conquer algorithm.,22CB203,Theory,,,,
+Midterm,1,Stacks,6,Describe the stack ADT and its applications.,"Used in expression evaluation, backtracking, etc.",22CB203,Theory,,,,
+Final,2,Queues,1,Which data structure allows insertion at rear and deletion at front?,Queue,22CB203,MCQ,Stack,Queue,Tree,Graph
+Final,3,Trees,2,Explain binary search tree operations.,"Insertion, deletion, and searching.",22CB203,Theory,,,,
+Final,4,Graphs,3,How is DFS different from BFS?,"DFS uses stack, BFS uses queue.",22CB203,Theory,,,,
+Final,5,Sorting,4,What is the time complexity of quick sort?,"Best: O(n log n), Worst: O(n^2)",22CB203,Theory,,,,
