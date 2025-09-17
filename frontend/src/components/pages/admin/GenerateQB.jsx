@@ -21,6 +21,8 @@ import {
   Alert,
   FormLabel,
 } from "@mui/material";
+import { CKEditor } from "@ckeditor/ckeditor5-react";
+import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 
 // Function to strip all HTML tags from a string
 function stripHTMLTags(str) {
@@ -39,9 +41,48 @@ function extractImageSrcs(html) {
   return imgs.map((img) => img.src);
 }
 
+const prependImageBaseUrl = (html) => {
+  if (!html) return "";
+  const baseUrl = "http://localhost:7000"; // Server base URL
+  return html.replace(/<img src="\/uploads\//g, `<img src="${baseUrl}/uploads/`);
+};
+
 const GenerateQuestion = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
+
+  function CustomUploadAdapterPlugin(editor) {
+    editor.plugins.get("FileRepository").createUploadAdapter = (loader) => {
+      return {
+        upload: async () => {
+          const file = await loader.file;
+          const formData = new FormData();
+          formData.append("figure", file);
+
+          try {
+            // Using the faculty upload endpoint as it's available.
+            // An admin-specific one could be created if needed.
+            const response = await axios.post(
+              "http://localhost:7000/api/faculty/upload-figure",
+              formData,
+              {
+                headers: {
+                  "Content-Type": "multipart/form-data",
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            );
+            return {
+              default: response.data.figurePath, // must return a URL to the uploaded image
+            };
+          } catch (error) {
+            console.error("Image upload failed:", error);
+            return Promise.reject("Upload failed");
+          }
+        },
+      };
+    };
+  }
   
   // Changed from single paperData to multiple papers
   const [papersData, setPapersData] = useState([]);
@@ -532,7 +573,7 @@ const GenerateQuestion = () => {
         // Create paper object for this set
         const paperData = {
           set: selectedSet,
-          college: "Bannari Amman Institute of Technology",
+          college: header.collegeName || "Bannari Amman Institute of Technology",
           exam_name: exam_type,
           department: `IV Sem – B.E. / B.Tech. ${department}`,
           course_code,
@@ -801,7 +842,7 @@ const GenerateQuestion = () => {
         <tbody>
           <tr>
             <td className="border border-black font-bold" colSpan="2">
-              {header.collegeName || "BIT"}
+              <div className="[&_img]:h-12 [&_img]:w-auto [&_img]:inline-block align-middle" dangerouslySetInnerHTML={{ __html: prependImageBaseUrl(header.collegeName) || "BIT" }} />
             </td>
           </tr>
           <tr>
@@ -1323,6 +1364,7 @@ const GenerateQuestion = () => {
   // Save header to localStorage
   const handleSetDefaultHeader = () => {
     localStorage.setItem("pgHeaderDefault", JSON.stringify(header));
+    setOpenHeaderEdit(false);
   };
 
   // If you don't already have this handler, add it (keeps state updated for per-unit inputs)
@@ -2057,7 +2099,7 @@ const GenerateQuestion = () => {
                             <div className="flex flex-col w-full justify-center">
                               <div className="text-center mb-2 border-b border-black pb-2">
                                 <h1 className="text-lg font-bold uppercase">
-                                  {paperData.college}
+                                  Bannari Amman Institute of Technology
                                 </h1>
                                 <p className="text-sm italic">
                                   (An Autonomous Institution Affiliated to Anna
@@ -2254,7 +2296,7 @@ const GenerateQuestion = () => {
         <Dialog
           open={openHeaderEdit}
           onClose={() => setOpenHeaderEdit(false)}
-          maxWidth="sm"
+          maxWidth="md" // Increased width to accommodate editor
           fullWidth
         >
           <DialogTitle>Edit PG Question Paper Header</DialogTitle>
@@ -2262,13 +2304,24 @@ const GenerateQuestion = () => {
             <Box
               sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}
             >
-              <TextField
-                label="College Name"
-                name="collegeName"
-                value={header.collegeName}
-                onChange={handleHeaderChange}
-                fullWidth
-              />
+              <Typography variant="subtitle2" sx={{ mb: -1 }}>College Name</Typography>
+              <div className="bg-white border border-gray-300 rounded-xl shadow-sm p-1">
+                <CKEditor
+                  editor={ClassicEditor}
+                  data={prependImageBaseUrl(header.collegeName)}
+                  onChange={(event, editor) => {
+                    const data = editor.getData();
+                    setHeader(prev => ({ ...prev, collegeName: data }));
+                  }}
+                  config={{
+                    extraPlugins: [CustomUploadAdapterPlugin],
+                    toolbar: [
+                      "heading", "|", "bold", "italic", "|",
+                      "link", "imageUpload", "|", "undo", "redo",
+                    ],
+                  }}
+                />
+              </div>
               <TextField
                 label="Department"
                 name="department"

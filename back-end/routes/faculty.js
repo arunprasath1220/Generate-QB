@@ -2,10 +2,10 @@ const express = require("express");
 const router = express.Router();
 const path = require("path");
 const multer = require("multer");
-const csv = require("csv-parser");
 const fs = require("fs");
 const db = require("../db");
 const verifyToken = require("./jwtMiddleware");
+const xlsx = require("xlsx"); // Import the xlsx library
 const app = express();
 
 // Serve uploaded files statically
@@ -241,78 +241,95 @@ router.post("/upload", upload.single("file"), verifyToken, (req, res) => {
   if (!facultyId) return res.status(400).send("Missing faculty_id in request");
   if (!vettingId) return res.status(400).send("Missing vetting_id in request");
 
-  const results = [];
+  try {
+    // Read the Excel file
+    const workbook = xlsx.readFile(filePath);
+    const sheetName = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[sheetName];
+    const jsonData = xlsx.utils.sheet_to_json(worksheet);
 
-  fs.createReadStream(filePath)
-    .pipe(csv())
-    .on("data", (data) => {
-      if (
+    // Filter for valid rows
+    const results = jsonData.filter(
+      (data) =>
         data.unit &&
         data.topic &&
         data.question &&
         data.answer &&
         !isNaN(parseInt(data.mark))
-      ) {
-        results.push(data);
-      }
-    })
-    .on("end", () => {
-      // Step 1: Get max existing ID
-      db.query(
-        "SELECT MAX(id) AS maxId FROM question_status",
-        (err, result) => {
-          if (err) {
-            console.error("Error fetching max ID:", err);
-            return res.status(500).send("Error while preparing insertion");
-          }
+    );
 
-          let currentId = (result[0].maxId || 0) + 1;
+    if (results.length === 0) {
+      fs.unlink(filePath, (err) => {
+        if (err) console.error("Failed to delete invalid file:", err);
+      });
+      return res.status(400).send("No valid questions found in the file.");
+    }
 
-          // Step 2: Insert each row with a custom ID
-          results.forEach((row) => {
-            const query = `
+    // Get max existing ID
+    db.query(
+      "SELECT MAX(id) AS maxId FROM question_status",
+      (err, result) => {
+        if (err) {
+          console.error("Error fetching max ID:", err);
+          fs.unlink(filePath, (err) => {
+            if (err) console.error("Failed to delete file on DB error:", err);
+          });
+          return res.status(500).send("Error while preparing insertion");
+        }
+
+        let currentId = (result[0].maxId || 0) + 1;
+
+        // Insert each row with a custom ID
+        results.forEach((row) => {
+          const query = `
             INSERT INTO question_status 
             (id, unit, topic, mark, question, answer, course_code, option_a, option_b, option_c, option_d,
             faculty_id, vetting_id, competence_level, course_outcome, portion, figure, status)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')
           `;
 
-            db.query(
-              query,
-              [
-                currentId++,
-                row.unit,
-                row.topic,
-                parseInt(row.mark),
-                row.question,
-                row.answer,
-                courseCode,
-                row.option_a || null,
-                row.option_b || null,
-                row.option_c || null,
-                row.option_d || null,
-                facultyId || row.faculty_id || null,
-                vettingId || row.vetting_id || null,
-                row.competence_level || null,
-                row.course_outcome || null,
-                row.portion || null,
-                row.figure || null,
-              ],
-              (err) => {
-                if (err) console.error("Insert error:", err);
-              }
-            );
-          });
+          db.query(
+            query,
+            [
+              currentId++,
+              row.unit,
+              row.topic,
+              parseInt(row.mark),
+              row.question,
+              row.answer,
+              courseCode,
+              row.option_a || null,
+              row.option_b || null,
+              row.option_c || null,
+              row.option_d || null,
+              facultyId || row.faculty_id || null,
+              vettingId || row.vetting_id || null,
+              row.competence_level || null,
+              row.course_outcome || null,
+              row.portion || null,
+              row.figure || null,
+            ],
+            (err) => {
+              if (err) console.error("Insert error:", err);
+            }
+          );
+        });
 
-          // Delete uploaded CSV
-          fs.unlink(filePath, (err) => {
-            if (err) console.error("Failed to delete uploaded file:", err);
-          });
+        // Delete uploaded file after processing
+        fs.unlink(filePath, (err) => {
+          if (err) console.error("Failed to delete uploaded file:", err);
+        });
 
-          res.send("File uploaded and questions inserted with custom IDs");
-        }
-      );
+        res.send("File uploaded and questions inserted successfully.");
+      }
+    );
+  } catch (error) {
+    console.error("Error processing Excel file:", error);
+    fs.unlink(filePath, (err) => {
+      if (err) console.error("Failed to delete corrupted/failed file:", err);
     });
+    return res.status(500).send("Error processing Excel file.");
+  }
 });
 
 router.get("/faculty-task-progress/:faculty_id", verifyToken, (req, res) => {
