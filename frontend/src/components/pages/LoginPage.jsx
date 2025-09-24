@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { setUser } from '../../store/userSlice'; 
+import { setUser } from '../../store/userSlice';
 import { useNavigate } from 'react-router-dom';
 import { 
   Eye, 
@@ -48,8 +48,8 @@ const LoginPage = () => {
 
     try {
       const res = await axios.post('http://localhost:7000/api/auth/manual-login', {
-        email,
-        password,
+        email:email,
+        password:password,
       });
 
       if (res.data.success) {
@@ -88,28 +88,34 @@ const LoginPage = () => {
         email: user.email,
       });
 
-      if (res.data.exists) {
+      // Change this condition from res.data.exists to res.data.success
+      if (res.data.success) {
         localStorage.setItem('token', res.data.token);
 
+        // The user object is nested, so use res.data.user
         dispatch(setUser({
-          email: user.email,
-          name: user.displayName,
-          role: res.data.role,
-          course_code: res.data.course_code,
-          photoURL: user.photoURL,
+          email: res.data.user.email,
+          role: res.data.user.role
         }));
 
-        if (res.data.role === 'admin') {
+        // Check the role from the nested user object
+        if (res.data.user.role === 'admin') {
           navigate('/admindashboard');
-        } else if (res.data.role === 'faculty') {
+        } else if (res.data.user.role === 'faculty') {
           navigate('/facultydashboard');
         }
       } else {
+        // This part is now correctly reached only when the backend says the user is not found.
         alert('You are not registered. Please contact the administrator.');
       }
     } catch (error) {
+      // This will catch network errors or if the user is truly not in the DB (404 from backend)
       console.error("Google sign-in error:", error);
-      alert('Google login failed. Please try again.');
+      if (error.response && error.response.status === 404) {
+        alert('You are not registered. Please contact the administrator.');
+      } else {
+        alert('Google login failed. Please try again.');
+      }
     } finally {
       setGoogleLoading(false);
     }

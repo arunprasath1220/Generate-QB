@@ -76,10 +76,10 @@ export const Imagecomp = () => {
           
           {/* Close Button */}
           <button
-            className="absolute top-4 right-4 text-white/80 hover:text-white hover:bg-white/10 p-3 rounded-full transition-all duration-200 z-10 group"
+            className="absolute top-4 right-4 text-white/80 hover:text-white hover:bg-white/10 p-1 rounded-full transition-all duration-200 z-10 group"
             onClick={() => setOpenProfileModal(false)}
           >
-            <X size={20} className="group-hover:rotate-90 transition-transform duration-200" />
+            <X size={15} className="group-hover:rotate-90 transition-transform duration-200" />
           </button>
 
           {/* Profile Header */}
@@ -291,7 +291,7 @@ export const Imagecomp = () => {
                       </div>
                       <div>
                         <p className="text-sm text-gray-600 font-medium">Teaching Subject</p>
-                        <p className="text-gray-800 font-semibold text-lg">{facultyData.subject_name}</p>
+                        <p className="text-gray-800 font-semibold text-lg">{facultyData.subject}</p>
                       </div>
                     </div>
                     <ChevronRight size={20} className="text-gray-400" />

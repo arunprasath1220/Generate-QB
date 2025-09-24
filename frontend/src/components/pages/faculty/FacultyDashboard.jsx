@@ -37,7 +37,7 @@ import {
 import { Imagecomp } from "../../images/Imagecomp";
 import { Drawer, Paper } from "@mui/material";
 import { useSelector, useDispatch } from "react-redux";
-import { setUser, setVettingId } from "../../../store/userSlice";
+import { setUser } from "../../../store/userSlice";
 import { DataGrid } from "@mui/x-data-grid";
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
@@ -101,28 +101,6 @@ const FacultyDashboard = () => {
               ...facultyData,
             })
           );
-
-          if (facultyData.faculty_id) {
-            try {
-              const vettingResponse = await axios.get(
-                "http://localhost:7000/api/faculty/get-vetting-id",
-                {
-                  params: { faculty_id: facultyData.faculty_id },
-                  headers: { Authorization: `Bearer ${token}` },
-                }
-              );
-
-              if (vettingResponse.data?.vetting_id) {
-                dispatch(setVettingId(vettingResponse.data.vetting_id));
-              } else {
-                console.warn("No vetting ID found for faculty");
-                dispatch(setVettingId(null));
-              }
-            } catch (err) {
-              console.error("Error fetching vetting ID:", err);
-              dispatch(setVettingId(null));
-            }
-          }
         }
       } catch (error) {
         console.error("Error fetching faculty data:", error);
@@ -137,7 +115,7 @@ const FacultyDashboard = () => {
   useEffect(() => {
     if (courseCode) {
       axios
-        .get("http://localhost:7000/api/faculty/faculty-question-stats", {
+        .get("http://localhost:7000/api/faculty/faculty-question-status", {
           params: { course_code: courseCode },
           headers: { Authorization: `Bearer ${token}` },
         })
@@ -265,21 +243,21 @@ const FacultyDashboard = () => {
   const StatusBadge = ({ status, progress }) => {
     if (progress >= 100) {
       return (
-        <div className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border bg-green-100 text-green-800 border-green-200">
+        <div className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border bg-[#4b37cd] text-white border-[#4b37cd]">
           <CheckCircle size={12} />
           Completed
         </div>
       );
     } else if (progress > 0) {
       return (
-        <div className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border bg-yellow-100 text-yellow-800 border-yellow-200">
+        <div className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border bg-[#4b37cd]/60 text-white border-[#4b37cd]/60">
           <AlertCircle size={12} />
           In Progress
         </div>
       );
     } else {
       return (
-        <div className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border bg-red-100 text-red-800 border-red-200">
+        <div className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border bg-[#4b37cd]/30 text-[#4b37cd] border-[#4b37cd]/30">
           <XCircle size={12} />
           Not Started
         </div>
@@ -294,8 +272,8 @@ const FacultyDashboard = () => {
       flex: 1.5,
       renderCell: (params) => (
         <div className="flex items-center gap-2">
-          <div className="bg-blue-100 p-1 rounded">
-            <BookOpen size={14} className="text-blue-600" />
+          <div className="bg-[#4b37cd]/10 p-1 rounded">
+            <BookOpen size={14} className="text-[#4b37cd]" />
           </div>
           <span className="font-medium text-gray-900">{params.value}</span>
         </div>
@@ -307,10 +285,10 @@ const FacultyDashboard = () => {
       flex: 0.8,
       renderCell: (params) => (
         <div className="flex items-center gap-2">
-          <div className="bg-purple-100 p-1 rounded">
-            <Target size={14} className="text-purple-600" />
+          <div className="bg-[#4b37cd]/10 p-1 rounded">
+            <Target size={14} className="text-[#4b37cd]" />
           </div>
-          <span className="font-medium bg-purple-50 px-2 py-1 rounded text-purple-800 text-xs">
+          <span className="font-medium bg-[#4b37cd]/10 px-2 py-1 rounded text-[#4b37cd] text-xs">
             {params.value}
           </span>
         </div>
@@ -322,10 +300,10 @@ const FacultyDashboard = () => {
       flex: 0.8,
       renderCell: (params) => (
         <div className="flex items-center gap-2">
-          <div className="bg-green-100 p-1 rounded">
-            <Award size={14} className="text-green-600" />
+          <div className="bg-[#4b37cd]/10 p-1 rounded">
+            <Award size={14} className="text-[#4b37cd]" />
           </div>
-          <span className="font-bold text-green-800">{params.value}M</span>
+          <span className="font-bold text-[#4b37cd]">{params.value}M</span>
         </div>
       ),
     },
@@ -353,7 +331,7 @@ const FacultyDashboard = () => {
         return (
           <span
             className={`font-medium ${
-              added > 0 ? "text-blue-600" : "text-gray-400"
+              added > 0 ? "text-[#4b37cd]" : "text-gray-400"
             }`}
           >
             {added}
@@ -379,10 +357,10 @@ const FacultyDashboard = () => {
                 <div
                   className={`h-full transition-all duration-300 ${
                     progress >= 100
-                      ? "bg-green-500"
+                      ? "bg-[#4b37cd]"
                       : progress > 0
-                      ? "bg-yellow-500"
-                      : "bg-red-500"
+                      ? "bg-[#4b37cd]/70"
+                      : "bg-[#4b37cd]/30"
                   }`}
                   style={{ width: `${progress}%` }}
                 />
@@ -432,7 +410,7 @@ const FacultyDashboard = () => {
             className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
               isCompleted
                 ? "bg-gray-100 text-gray-500 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                : "bg-[#4b37cd] hover:bg-[#3d2ba7] text-white shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
             }`}
             onClick={
               isCompleted ? undefined : () => handleAddQuestion(params.row)
@@ -479,7 +457,7 @@ const FacultyDashboard = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/20 to-indigo-50/30">
+    <div className="flex min-h-screen bg-gray-50">
       {/* Sidebar */}
       <div className="hidden lg:flex flex-col fixed top-0 left-0 w-64 h-screen bg-white shadow-xl z-50 border-r border-gray-200">
         <FacultyNavbar />
@@ -504,7 +482,7 @@ const FacultyDashboard = () => {
       <div className="flex-1 px-6 pt-6 pb-10 lg:ml-64 overflow-y-auto" style={{ maxHeight: "100vh" }}>
         {/* Header Section */}
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 mb-8 overflow-hidden">
-          <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 px-6 py-8">
+          <div className="bg-[#4b37cd] px-6 py-8">
             <div className="flex flex-wrap justify-between items-center">
               <div className="flex items-center gap-4">
                 <button
@@ -521,7 +499,7 @@ const FacultyDashboard = () => {
                     <h1 className="text-2xl sm:text-3xl font-bold text-white">
                       Faculty Dashboard
                     </h1>
-                    <p className="text-blue-100 mt-1">
+                    <p className="text-white/80 mt-1">
                       Track your question submissions and progress
                     </p>
                   </div>
@@ -547,14 +525,14 @@ const FacultyDashboard = () => {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex items-center gap-4">
-                  <div className="bg-blue-100 p-3 rounded-lg">
-                    <FileText size={24} className="text-blue-600" />
+                  <div className="bg-[#4b37cd]/10 p-3 rounded-lg">
+                    <FileText size={24} className="text-[#4b37cd]" />
                   </div>
                   <div>
                     <p className="text-gray-600 text-sm font-medium">
                       Total Questions Added
                     </p>
-                    <p className="text-2xl font-bold text-gray-900">
+                    <p className="text-2xl font-bold text-[#4b37cd]">
                       {dashboardStats.totalQuestions}
                     </p>
                   </div>
@@ -562,14 +540,14 @@ const FacultyDashboard = () => {
               </div>
               <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex items-center gap-4">
-                  <div className="bg-green-100 p-3 rounded-lg">
-                    <CheckCircle size={24} className="text-green-600" />
+                  <div className="bg-[#4b37cd]/10 p-3 rounded-lg">
+                    <CheckCircle size={24} className="text-[#4b37cd]" />
                   </div>
                   <div>
                     <p className="text-gray-600 text-sm font-medium">
                       Completed Tasks
                     </p>
-                    <p className="text-2xl font-bold text-gray-900">
+                    <p className="text-2xl font-bold text-[#4b37cd]">
                       {dashboardStats.completedTasks}
                     </p>
                   </div>
@@ -577,14 +555,14 @@ const FacultyDashboard = () => {
               </div>
               <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex items-center gap-4">
-                  <div className="bg-yellow-100 p-3 rounded-lg">
-                    <Clock size={24} className="text-yellow-600" />
+                  <div className="bg-[#4b37cd]/10 p-3 rounded-lg">
+                    <Clock size={24} className="text-[#4b37cd]" />
                   </div>
                   <div>
                     <p className="text-gray-600 text-sm font-medium">
                       Pending Tasks
                     </p>
-                    <p className="text-2xl font-bold text-gray-900">
+                    <p className="text-2xl font-bold text-[#4b37cd]">
                       {dashboardStats.pendingTasks}
                     </p>
                   </div>
@@ -592,14 +570,14 @@ const FacultyDashboard = () => {
               </div>
               <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex items-center gap-4">
-                  <div className="bg-purple-100 p-3 rounded-lg">
-                    <TrendingUp size={24} className="text-purple-600" />
+                  <div className="bg-[#4b37cd]/10 p-3 rounded-lg">
+                    <TrendingUp size={24} className="text-[#4b37cd]" />
                   </div>
                   <div>
                     <p className="text-gray-600 text-sm font-medium">
                       This Month
                     </p>
-                    <p className="text-2xl font-bold text-gray-900">
+                    <p className="text-2xl font-bold text-[#4b37cd]">
                       {dashboardStats.thisMonth}
                     </p>
                   </div>
@@ -611,15 +589,15 @@ const FacultyDashboard = () => {
 
         {/* Task Progress Section */}
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden mb-8">
-          <div className="bg-gradient-to-r from-indigo-50 to-blue-50 px-6 py-4 border-b border-gray-200">
+          <div className="bg-[#4b37cd]/5 px-6 py-4 border-b border-gray-200">
             <div className="flex items-center justify-between">
-              <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-                <Activity size={20} className="text-blue-600" />
+              <h3 className="text-xl font-bold text-[#4b37cd] flex items-center gap-2">
+                <Activity size={20} className="text-[#4b37cd]" />
                 Task Progress
               </h3>
               <button
                 onClick={() => navigate("/addquestions")}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center gap-2"
+                className="bg-[#4b37cd] hover:bg-[#3d2ba7] text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center gap-2"
               >
                 <Plus size={16} />
                 Add Question
@@ -651,8 +629,8 @@ const FacultyDashboard = () => {
                 slots={{
                   noRowsOverlay: () => (
                     <div className="flex flex-col items-center justify-center h-64">
-                      <div className="bg-blue-100 p-4 rounded-full mb-4">
-                        <CheckCircle size={32} className="text-blue-600" />
+                      <div className="bg-[#4b37cd]/10 p-4 rounded-full mb-4">
+                        <CheckCircle size={32} className="text-[#4b37cd]" />
                       </div>
                       <p className="text-lg font-medium text-gray-700 mb-2">
                         All Tasks Completed!
@@ -704,17 +682,17 @@ const FacultyDashboard = () => {
 
         {/* Statistics Section */}
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-          <div className="bg-gradient-to-r from-green-50 to-emerald-50 px-6 py-4 border-b border-gray-200">
+          <div className="bg-[#4b37cd]/5 px-6 py-4 border-b border-gray-200">
             <div className="flex items-center justify-between">
-              <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-                <BarChart3 size={20} className="text-green-600" />
+              <h3 className="text-xl font-bold text-[#4b37cd] flex items-center gap-2">
+                <BarChart3 size={20} className="text-[#4b37cd]" />
                 Question Bank Statistics
               </h3>
               <div className="flex gap-2">
                 <button
                   className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
                     view === "Monthly"
-                      ? "bg-green-500 text-white shadow-md"
+                      ? "bg-[#4b37cd] text-white shadow-md"
                       : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                   }`}
                   onClick={() => setView("Monthly")}
@@ -724,7 +702,7 @@ const FacultyDashboard = () => {
                 <button
                   className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
                     view === "Weekly"
-                      ? "bg-green-500 text-white shadow-md"
+                      ? "bg-[#4b37cd] text-white shadow-md"
                       : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                   }`}
                   onClick={() => setView("Weekly")}
@@ -799,14 +777,14 @@ const FacultyDashboard = () => {
                     />
                     <Bar
                       dataKey="QB_Added"
-                      fill="#10b981"
+                      fill="#4b37cd"
                       radius={[8, 8, 0, 0]}
                     >
                       {(view === "Monthly" ? filteredMonthlyData : weeklyStats).map(
                         (entry, index) => (
                           <Cell
                             key={`cell-${index}`}
-                            fill={entry.QB_Added > 3 ? "#10b981" : "#6ee7b7"}
+                            fill={entry.QB_Added > 3 ? "#4b37cd" : "#6b52d6"}
                           />
                         )
                       )}

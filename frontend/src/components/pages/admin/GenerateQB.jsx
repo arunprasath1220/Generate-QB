@@ -23,6 +23,8 @@ import {
 } from "@mui/material";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 // Function to strip all HTML tags from a string
 function stripHTMLTags(str) {
@@ -649,15 +651,37 @@ const GenerateQuestion = () => {
     const index = paperIndex !== null ? paperIndex : currentView.index;
     const paperToExport = papersData[index];
     
-    if (!paperToExport) return;
+    if (!paperToExport) {
+      toast.error("No paper data found to export", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      return;
+    }
 
     const element = document.getElementById(`question-paper-${index}`);
     
+    if (!element) {
+      toast.error("Question paper element not found", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      return;
+    }
+
     const opt = {
       margin: [0.2, 0.2, 0.2, 0.2],
       filename: `${paperToExport.course_code}_Set_${paperToExport.set}_question_paper.pdf`,
       image: { type: "jpeg", quality: 1 },
-      html2canvas: { scale: 2, useCORS: true },
+      html2canvas: { 
+        scale: 2, 
+        useCORS: true,
+        allowTaint: true,
+        logging: false,
+        letterRendering: true,
+        scrollX: 0,
+        scrollY: 0
+      },
       jsPDF: {
         unit: "in",
         format: "a4",
@@ -665,43 +689,236 @@ const GenerateQuestion = () => {
       },
     };
 
-    html2pdf().set(opt).from(element).save();
+    toast.info(`Exporting question paper Set ${paperToExport.set}...`, {
+      position: "top-right",
+      autoClose: 2000,
+    });
+
+    html2pdf()
+      .set(opt)
+      .from(element)
+      .save()
+      .then(() => {
+        toast.success(`Question paper Set ${paperToExport.set} exported successfully!`, {
+          position: "top-right",
+          autoClose: 3000,
+        });
+      })
+      .catch((error) => {
+        console.error("Error exporting question paper:", error);
+        toast.error("Failed to export question paper", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+      });
   };
 
   const exportAnswerToPDF = (paperIndex = null) => {
     const index = paperIndex !== null ? paperIndex : currentView.index;
     const paperToExport = papersData[index];
     
-    if (!paperToExport) return;
+    if (!paperToExport) {
+      toast.error("No paper data found to export", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      return;
+    }
 
     const element = document.getElementById(`answer-paper-${index}`);
-    if (!element) return;
+    
+    if (!element) {
+      toast.error("Answer paper element not found", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      return;
+    }
     
     const opt = {
       margin: [0.2, 0.2, 0.2, 0.2],
       filename: `${paperToExport.course_code}_Set_${paperToExport.set}_answer_paper.pdf`,
       image: { type: "jpeg", quality: 1 },
-      html2canvas: { scale: 2, useCORS: true },
+      html2canvas: { 
+        scale: 2, 
+        useCORS: true,
+        allowTaint: true,
+        logging: false,
+        letterRendering: true,
+        scrollX: 0,
+        scrollY: 0
+      },
       jsPDF: {
         unit: "in",
         format: "a4",
         orientation: "portrait",
       },
     };
+
+    toast.info(`Exporting answer paper Set ${paperToExport.set}...`, {
+      position: "top-right",
+      autoClose: 2000,
+    });
     
-    html2pdf().set(opt).from(element).save();
+    html2pdf()
+      .set(opt)
+      .from(element)
+      .save()
+      .then(() => {
+        toast.success(`Answer paper Set ${paperToExport.set} exported successfully!`, {
+          position: "top-right",
+          autoClose: 3000,
+        });
+      })
+      .catch((error) => {
+        console.error("Error exporting answer paper:", error);
+        toast.error("Failed to export answer paper", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+      });
   };
 
   // Function to export all papers at once
-  const exportAllPapers = () => {
-    papersData.forEach((_, index) => {
-      setTimeout(() => {
-        exportToPDF(index);
-        setTimeout(() => {
-          exportAnswerToPDF(index);
-        }, 1000);
-      }, index * 3000); // Stagger exports to avoid conflicts
-    });
+  const exportAllPapers = async () => {
+    try {
+      toast.info(`Starting export of ${papersData.length * 2} PDF files...`, {
+        position: "top-right",
+        autoClose: 3000,
+      });
+
+      for (let index = 0; index < papersData.length; index++) {
+        const paperToExport = papersData[index];
+        
+        // Temporarily show the question paper for export
+        setCurrentView({ index, type: "question" });
+        await new Promise(resolve => setTimeout(resolve, 500)); // Wait for render
+        
+        // Export question paper
+        await new Promise((resolve) => {
+          const questionElement = document.getElementById(`question-paper-${index}`);
+          if (questionElement) {
+            const questionOpt = {
+              margin: [0.2, 0.2, 0.2, 0.2],
+              filename: `${paperToExport.course_code}_Set_${paperToExport.set}_question_paper.pdf`,
+              image: { type: "jpeg", quality: 1 },
+              html2canvas: { 
+                scale: 2, 
+                useCORS: true,
+                allowTaint: true,
+                logging: false,
+                letterRendering: true
+              },
+              jsPDF: {
+                unit: "in",
+                format: "a4",
+                orientation: "portrait",
+              },
+            };
+            
+            html2pdf()
+              .set(questionOpt)
+              .from(questionElement)
+              .save()
+              .then(() => {
+                console.log(`Question paper Set ${paperToExport.set} exported successfully`);
+                toast.success(`Question paper Set ${paperToExport.set} exported successfully!`, {
+                  position: "top-right",
+                  autoClose: 2000,
+                });
+                setTimeout(resolve, 1000);
+              })
+              .catch((error) => {
+                console.error(`Error exporting question paper Set ${paperToExport.set}:`, error);
+                toast.error(`Failed to export question paper Set ${paperToExport.set}`, {
+                  position: "top-right",
+                  autoClose: 3000,
+                });
+                setTimeout(resolve, 1000);
+              });
+          } else {
+            console.warn(`Question paper element for Set ${paperToExport.set} not found`);
+            toast.warning(`Question paper element for Set ${paperToExport.set} not found`, {
+              position: "top-right",
+              autoClose: 3000,
+            });
+            resolve();
+          }
+        });
+
+        // Temporarily show the answer paper for export
+        setCurrentView({ index, type: "answer" });
+        await new Promise(resolve => setTimeout(resolve, 500)); // Wait for render
+
+        // Export answer paper
+        await new Promise((resolve) => {
+          const answerElement = document.getElementById(`answer-paper-${index}`);
+          if (answerElement) {
+            const answerOpt = {
+              margin: [0.2, 0.2, 0.2, 0.2],
+              filename: `${paperToExport.course_code}_Set_${paperToExport.set}_answer_paper.pdf`,
+              image: { type: "jpeg", quality: 1 },
+              html2canvas: { 
+                scale: 2, 
+                useCORS: true,
+                allowTaint: true,
+                logging: false,
+                letterRendering: true
+              },
+              jsPDF: {
+                unit: "in",
+                format: "a4",
+                orientation: "portrait",
+              },
+            };
+            
+            html2pdf()
+              .set(answerOpt)
+              .from(answerElement)
+              .save()
+              .then(() => {
+                console.log(`Answer paper Set ${paperToExport.set} exported successfully`);
+                toast.success(`Answer paper Set ${paperToExport.set} exported successfully!`, {
+                  position: "top-right",
+                  autoClose: 2000,
+                });
+                setTimeout(resolve, 1000);
+              })
+              .catch((error) => {
+                console.error(`Error exporting answer paper Set ${paperToExport.set}:`, error);
+                toast.error(`Failed to export answer paper Set ${paperToExport.set}`, {
+                  position: "top-right",
+                  autoClose: 3000,
+                });
+                setTimeout(resolve, 1000);
+              });
+          } else {
+            console.warn(`Answer paper element for Set ${paperToExport.set} not found`);
+            toast.warning(`Answer paper element for Set ${paperToExport.set} not found`, {
+              position: "top-right",
+              autoClose: 3000,
+            });
+            resolve();
+          }
+        });
+      }
+      
+      // Reset to first question paper view
+      setCurrentView({ index: 0, type: "question" });
+      
+      console.log('All papers exported successfully!');
+      toast.success('All papers exported successfully!', {
+        position: "top-right",
+        autoClose: 5000,
+      });
+      
+    } catch (error) {
+      console.error('Error during bulk export:', error);
+      toast.error('Error occurred during bulk export. Please try again.', {
+        position: "top-right",
+        autoClose: 5000,
+      });
+    }
   };
 
   const renderQuestions = (sectionData, sectionLabel) => (
@@ -1530,7 +1747,7 @@ const GenerateQuestion = () => {
   }
 
   return (
-    <div className="flex h-screen bg-gradient-to-br from-gray-50 to-blue-50/20 overflow-hidden">
+    <div className="flex h-screen bg-white overflow-hidden">
       <div className="hidden lg:flex flex-col fixed top-0 left-0 w-56 h-full bg-white shadow-lg z-50">
         <AdminNavbar />
       </div>
@@ -1552,7 +1769,7 @@ const GenerateQuestion = () => {
 
       <div className="flex flex-col w-full h-screen p-6 lg:ml-64">
         {/* Enhanced Header Section */}
-        <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border border-gray-200/50 p-6 mb-6 sticky top-0 z-10">
+        <div className="bg-white rounded-2xl shadow-xl border border-gray-200/50 p-6 mb-6 sticky top-0 z-10">
           <div className="flex justify-between items-center">
             {/* Left side - Menu & Title */}
             <div className="flex items-center gap-4">
@@ -1563,19 +1780,19 @@ const GenerateQuestion = () => {
                 onClick={() => setOpenSidebar(true)}
                 sx={{ 
                   display: { lg: "none" },
-                  backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                  '&:hover': { backgroundColor: 'rgba(59, 130, 246, 0.2)' }
+                  backgroundColor: 'rgba(147, 51, 234, 0.1)',
+                  '&:hover': { backgroundColor: 'rgba(147, 51, 234, 0.2)' }
                 }}
               >
-                <MenuIcon className="text-blue-600" />
+                <MenuIcon className="text-purple-600" />
               </IconButton>
               
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-xl flex items-center justify-center shadow-lg">
+                <div className="w-10 h-10 bg-purple-600 rounded-xl flex items-center justify-center shadow-lg">
                   <span className="text-white font-bold text-lg">QB</span>
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
+                  <h1 className="text-2xl font-bold text-purple-800">
                     Generate Question Paper
                   </h1>
                   <p className="text-sm text-gray-500">Create and manage question papers</p>
@@ -1591,7 +1808,7 @@ const GenerateQuestion = () => {
                   <Button
                     variant="outlined"
                     onClick={() => setOpenHeaderEdit(true)}
-                    className="!border-blue-200 !text-blue-600 hover:!bg-blue-50 !rounded-xl !px-4 !py-2 !font-medium"
+                    className="!border-purple-200 !text-purple-600 hover:!bg-purple-50 !rounded-xl !px-4 !py-2 !font-medium"
                   >
                     Edit Header
                   </Button>
@@ -1606,7 +1823,7 @@ const GenerateQuestion = () => {
               )}
               
               <button
-                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-2.5 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2.5 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
                 onClick={() => navigate("/qbhistory")}
               >
                 QB History
@@ -1618,7 +1835,7 @@ const GenerateQuestion = () => {
         {/* Main content area with scrolling */}
         <div className="flex-grow overflow-y-auto pr-2">
           {/* Enhanced Form Section */}
-          <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-xl border border-gray-200/50 p-8 mb-6">
+          <div className="bg-white rounded-3xl shadow-xl border border-gray-200/50 p-8 mb-6">
             
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {/* Left Column */}
@@ -1626,14 +1843,14 @@ const GenerateQuestion = () => {
                 {/* Degree Selection */}
                 <div className="group">
                   <label className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                    <div className="w-2 h-2 bg-purple-600 rounded-full"></div>
                     Degree Program
                   </label>
                   <select
                     name="degree"
                     value={degree}
                     onChange={(e) => setDegree(e.target.value)}
-                    className="w-full p-4 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all duration-300 text-gray-800 font-medium group-hover:shadow-md"
+                    className="w-full p-4 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 outline-none transition-all duration-300 text-gray-800 font-medium group-hover:shadow-md"
                   >
                     <option value="UG">Undergraduate (UG)</option>
                     <option value="PG">Postgraduate (PG)</option>
@@ -1643,7 +1860,7 @@ const GenerateQuestion = () => {
                 {/* Subject Selection */}
                 <div className="group">
                   <label className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
                     Subject Selection
                   </label>
                   <div className="space-y-3">
@@ -1653,7 +1870,7 @@ const GenerateQuestion = () => {
                       onChange={(e) =>
                         setFormData({ ...formData, course_code: e.target.value })
                       }
-                      className="w-full p-4 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all duration-300 text-gray-800 font-medium group-hover:shadow-md"
+                      className="w-full p-4 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 outline-none transition-all duration-300 text-gray-800 font-medium group-hover:shadow-md"
                     >
                       <option value="">Select Subject</option>
                       {subjectOptions.map((subject, idx) => (
@@ -1667,16 +1884,16 @@ const GenerateQuestion = () => {
                       <input
                         type="text"
                         placeholder="Or enter course code manually"
-                        className="w-full p-4 pl-12 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all duration-300 text-gray-800 font-medium group-hover:shadow-md"
+                        className="w-full p-4 pl-12 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 outline-none transition-all duration-300 text-gray-800 font-medium group-hover:shadow-md"
                         value={formData.course_code}
                         onChange={(e) =>
                           setFormData({ ...formData, course_code: e.target.value })
                         }
                       />
                       <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
-                        <div className="w-6 h-6 bg-green-100 rounded-lg flex items-center justify-center">
+                        {/* <div className="w-6 h-6 bg-green-100 rounded-lg flex items-center justify-center">
                           <span className="text-green-600 text-xs font-bold">📝</span>
-                        </div>
+                        </div> */}
                       </div>
                     </div>
                   </div>
@@ -1706,7 +1923,7 @@ const GenerateQuestion = () => {
                 {/* Exam Type */}
                 <div className="group">
                   <label className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                    <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                    <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
                     Examination Type
                   </label>
                   <select
@@ -1715,7 +1932,7 @@ const GenerateQuestion = () => {
                     onChange={(e) =>
                       setFormData({ ...formData, exam_type: e.target.value })
                     }
-                    className="w-full p-4 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none transition-all duration-300 text-gray-800 font-medium group-hover:shadow-md"
+                    className="w-full p-4 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 outline-none transition-all duration-300 text-gray-800 font-medium group-hover:shadow-md"
                   >
                     <option value="">Select Exam Type</option>
                     <option value="Periodical Test - I">Periodical Test - I</option>
@@ -1732,7 +1949,7 @@ const GenerateQuestion = () => {
                 {/* Exam Month */}
                 <div className="group">
                   <label className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                    <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
+                    <div className="w-2 h-2 bg-purple-600 rounded-full"></div>
                     Exam Month
                   </label>
                   <div className="relative">
@@ -1745,13 +1962,13 @@ const GenerateQuestion = () => {
                       onChange={(e) =>
                         setFormData({ ...formData, exam_month: e.target.value })
                       }
-                      className="w-full p-4 pl-12 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all duration-300 text-gray-800 font-medium group-hover:shadow-md"
+                      className="w-full p-4 pl-12 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 outline-none transition-all duration-300 text-gray-800 font-medium group-hover:shadow-md"
                     />
-                    <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
+                    {/* <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
                       <div className="w-6 h-6 bg-indigo-100 rounded-lg flex items-center justify-center">
                         <span className="text-indigo-600 text-xs font-bold">📅</span>
                       </div>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
 
@@ -1760,7 +1977,7 @@ const GenerateQuestion = () => {
                   (degree === "UG" || degree === "PG") && (
                     <div className="group">
                       <label className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                        <div className="w-2 h-2 bg-teal-500 rounded-full"></div>
+                        <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
                         Unit Range
                       </label>
                       <div className="grid grid-cols-2 gap-4">
@@ -1771,7 +1988,7 @@ const GenerateQuestion = () => {
                             onChange={(e) =>
                               setFormData({ ...formData, from_unit: e.target.value })
                             }
-                            className="w-full p-4 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 outline-none transition-all duration-300 text-gray-800 font-medium group-hover:shadow-md"
+                            className="w-full p-4 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 outline-none transition-all duration-300 text-gray-800 font-medium group-hover:shadow-md"
                           >
                             <option value="">From Unit</option>
                             {unitOptions.map((unit, idx) => (
@@ -1788,7 +2005,7 @@ const GenerateQuestion = () => {
                             onChange={(e) =>
                               setFormData({ ...formData, to_unit: e.target.value })
                             }
-                            className="w-full p-4 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 outline-none transition-all duration-300 text-gray-800 font-medium group-hover:shadow-md"
+                            className="w-full p-4 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 outline-none transition-all duration-300 text-gray-800 font-medium group-hover:shadow-md"
                           >
                             <option value="">To Unit</option>
                             {unitOptions.map((unit, idx) => (
@@ -1805,10 +2022,10 @@ const GenerateQuestion = () => {
                 {/* Department Selection */}
                 <div className="group">
                   <label className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                    <div className="w-2 h-2 bg-rose-500 rounded-full"></div>
+                    <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
                     Department
                   </label>
-                  <div className="bg-gray-50 border-2 border-gray-200 rounded-2xl p-1 focus-within:ring-2 focus-within:ring-rose-500/20 focus-within:border-rose-500 transition-all duration-300 group-hover:shadow-md">
+                  <div className="bg-gray-50 border-2 border-gray-200 rounded-2xl p-1 focus-within:ring-2 focus-within:ring-purple-500/20 focus-within:border-purple-500 transition-all duration-300 group-hover:shadow-md">
                     <Select
                       isMulti
                       name="department"
@@ -1832,9 +2049,9 @@ const GenerateQuestion = () => {
                         option: (provided, state) => ({
                           ...provided,
                           backgroundColor: state.isSelected 
-                            ? "rgb(244 63 94)" 
+                            ? "rgb(147 51 234)" 
                             : state.isFocused 
-                            ? "rgb(255 241 242)" 
+                            ? "rgb(250 245 255)" 
                             : "white",
                           color: state.isSelected ? "white" : "black",
                           padding: "12px 16px",
@@ -1843,21 +2060,21 @@ const GenerateQuestion = () => {
                         }),
                         multiValue: (provided) => ({
                           ...provided,
-                          backgroundColor: "rgb(255 241 242)",
+                          backgroundColor: "rgb(250 245 255)",
                           borderRadius: "8px",
                           padding: "2px",
                         }),
                         multiValueLabel: (provided) => ({
                           ...provided,
-                          color: "rgb(244 63 94)",
+                          color: "rgb(147 51 234)",
                           fontWeight: "600",
                         }),
                         multiValueRemove: (provided) => ({
                           ...provided,
-                          color: "rgb(244 63 94)",
+                          color: "rgb(147 51 234)",
                           borderRadius: "0 8px 8px 0",
                           ":hover": {
-                            backgroundColor: "rgb(244 63 94)",
+                            backgroundColor: "rgb(147 51 234)",
                             color: "white",
                           },
                         }),
@@ -1871,7 +2088,7 @@ const GenerateQuestion = () => {
                   {/* Set Selection */}
                   <div className="group">
                     <label className="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">
-                      <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                      <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
                       Question Paper Sets
                     </label>
                     <div className="flex gap-4">
@@ -1888,7 +2105,7 @@ const GenerateQuestion = () => {
                                 : [...prev.set, "A"],
                             }));
                           }}
-                          className="w-5 h-5 text-emerald-600 bg-gray-50 border-2 border-gray-300 rounded-lg focus:ring-emerald-500 focus:ring-2"
+                          className="w-5 h-5 text-purple-600 bg-gray-50 border-2 border-gray-300 rounded-lg focus:ring-purple-500 focus:ring-2"
                         />
                         <label htmlFor="setA" className="ml-3 text-gray-700 font-medium cursor-pointer">
                           Set A
@@ -1907,7 +2124,7 @@ const GenerateQuestion = () => {
                                 : [...prev.set, "B"],
                             }));
                           }}
-                          className="w-5 h-5 text-emerald-600 bg-gray-50 border-2 border-gray-300 rounded-lg focus:ring-emerald-500 focus:ring-2"
+                          className="w-5 h-5 text-purple-600 bg-gray-50 border-2 border-gray-300 rounded-lg focus:ring-purple-500 focus:ring-2"
                         />
                         <label htmlFor="setB" className="ml-3 text-gray-700 font-medium cursor-pointer">
                           Set B
@@ -1919,7 +2136,7 @@ const GenerateQuestion = () => {
                   {/* Repetition Settings */}
                   <div className="group">
                     <label className="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">
-                      <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
+                      <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
                       Question Repetition
                     </label>
                     <div className="flex gap-4">
@@ -1929,7 +2146,7 @@ const GenerateQuestion = () => {
                           id="notOccur"
                           checked={repetition === "not-occur"}
                           onChange={() => setRepetition(repetition === "not-occur" ? "" : "not-occur")}
-                          className="w-5 h-5 text-amber-600 bg-gray-50 border-2 border-gray-300 rounded-lg focus:ring-amber-500 focus:ring-2"
+                          className="w-5 h-5 text-purple-600 bg-gray-50 border-2 border-gray-300 rounded-lg focus:ring-purple-500 focus:ring-2"
                         />
                         <label htmlFor="notOccur" className="ml-3 text-gray-700 font-medium cursor-pointer">
                           No Repetition
@@ -1941,7 +2158,7 @@ const GenerateQuestion = () => {
                           id="occur"
                           checked={repetition === "occur"}
                           onChange={() => setRepetition(repetition === "occur" ? "" : "occur")}
-                          className="w-5 h-5 text-amber-600 bg-gray-50 border-2 border-gray-300 rounded-lg focus:ring-amber-500 focus:ring-2"
+                          className="w-5 h-5 text-purple-600 bg-gray-50 border-2 border-gray-300 rounded-lg focus:ring-purple-500 focus:ring-2"
                         />
                         <label htmlFor="occur" className="ml-3 text-gray-700 font-medium cursor-pointer">
                           Allow Repetition
@@ -1957,11 +2174,11 @@ const GenerateQuestion = () => {
             <div className="mt-8 flex justify-center">
               <button
                 onClick={fetchPaper}
-                className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 hover:from-blue-700 hover:via-purple-700 hover:to-indigo-800 text-white font-bold py-4 px-12 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-400 transform hover:scale-105 flex items-center gap-3"
+                className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 px-12 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-400 transform hover:scale-105 flex items-center gap-3"
               >
-                <div className="w-6 h-6 bg-white/20 rounded-lg flex items-center justify-center">
+                {/* <div className="w-6 h-6 bg-white/20 rounded-lg flex items-center justify-center">
                   <span className="text-white text-sm">✨</span>
-                </div>
+                </div> */}
                 Generate Question Paper
                 <div className="w-2 h-2 bg-white/40 rounded-full animate-pulse"></div>
               </button>
@@ -1986,7 +2203,7 @@ const GenerateQuestion = () => {
           {/* Navigation and Export Controls for Multiple Papers */}
           {papersData.length > 0 && (
             <>
-              <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border border-gray-200/50 p-6 mb-6">
+              <div className="bg-white rounded-2xl shadow-xl border border-gray-200/50 p-6 mb-6">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                   <div className="flex gap-2 flex-wrap">
                     {papersData.map((paper, index) => (
@@ -1995,7 +2212,7 @@ const GenerateQuestion = () => {
                           onClick={() => setCurrentView({ index, type: "question" })}
                           className={`px-4 py-2.5 rounded-xl font-semibold transition-all duration-300 ${
                             currentView.index === index && currentView.type === "question"
-                              ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg transform scale-105"
+                              ? "bg-purple-600 text-white shadow-lg transform scale-105"
                               : "bg-gray-100 text-gray-700 hover:bg-gray-200 hover:shadow-md"
                           }`}
                         >
@@ -2005,7 +2222,7 @@ const GenerateQuestion = () => {
                           onClick={() => setCurrentView({ index, type: "answer" })}
                           className={`px-4 py-2.5 rounded-xl font-semibold transition-all duration-300 ${
                             currentView.index === index && currentView.type === "answer"
-                              ? "bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg transform scale-105"
+                              ? "bg-purple-600 text-white shadow-lg transform scale-105"
                               : "bg-gray-100 text-gray-700 hover:bg-gray-200 hover:shadow-md"
                           }`}
                         >
@@ -2025,8 +2242,8 @@ const GenerateQuestion = () => {
                       }}
                       className={`px-6 py-2.5 rounded-xl text-white font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 ${
                         currentView.type === "question"
-                          ? "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
-                          : "bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
+                          ? "bg-purple-600 hover:bg-purple-700"
+                          : "bg-purple-600 hover:bg-purple-700"
                       }`}
                     >
                       {currentView.type === "question"
@@ -2035,7 +2252,7 @@ const GenerateQuestion = () => {
                     </button>
                     <button
                       onClick={exportAllPapers}
-                      className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 py-2.5 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+                      className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2.5 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
                     >
                       Export All Papers
                     </button>
@@ -2611,6 +2828,20 @@ const GenerateQuestion = () => {
           </DialogActions>
         </Dialog>
       </div>
+      
+      {/* Toast Container for notifications */}
+      <ToastContainer 
+        position="top-right" 
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        className="toast-container"
+      />
     </div>
   );
 };

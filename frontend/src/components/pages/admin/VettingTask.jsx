@@ -188,7 +188,7 @@ const VettingTask = () => {
   const maxAvailableRows = Math.max(availableQuestionFaculty.length, availableVettingFaculty.length);
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/20 to-indigo-50/30">
+    <div className="flex min-h-screen bg-white">
       {/* Sidebar */}
       <div className="hidden lg:flex flex-col fixed top-0 left-0 w-64 h-screen bg-white shadow-xl z-50 border-r border-gray-200">
         <AdminNavbar />
@@ -216,7 +216,7 @@ const VettingTask = () => {
       >
         {/* Header Section */}
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 mb-8 overflow-hidden">
-          <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 px-6 py-8">
+          <div className="bg-purple-600 px-6 py-8">
             <div className="flex flex-wrap justify-between items-center">
               <div className="flex items-center gap-4">
                 <button
@@ -233,7 +233,7 @@ const VettingTask = () => {
                     <h1 className="text-2xl sm:text-3xl font-bold text-white">
                       Vetting Assignment
                     </h1>
-                    <p className="text-blue-100 mt-1">
+                    <p className="text-purple-100 mt-1">
                       Manage faculty vetting assignments and track progress
                     </p>
                   </div>
@@ -253,12 +253,12 @@ const VettingTask = () => {
           </div>
 
           {/* Stats Cards */}
-          <div className="px-6 py-6 bg-gray-50/50">
+          <div className="px-6 py-6 bg-white">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
                 <div className="flex items-center gap-4">
-                  <div className="bg-blue-100 p-3 rounded-lg">
-                    <Users size={24} className="text-blue-600" />
+                  <div className="bg-purple-100 p-3 rounded-lg">
+                    <Users size={24} className="text-purple-600" />
                   </div>
                   <div>
                     <p className="text-gray-600 text-sm font-medium">Total Faculty</p>
@@ -268,8 +268,8 @@ const VettingTask = () => {
               </div>
               <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
                 <div className="flex items-center gap-4">
-                  <div className="bg-green-100 p-3 rounded-lg">
-                    <UserCheck size={24} className="text-green-600" />
+                  <div className="bg-purple-100 p-3 rounded-lg">
+                    <UserCheck size={24} className="text-purple-600" />
                   </div>
                   <div>
                     <p className="text-gray-600 text-sm font-medium">Assigned Tasks</p>
@@ -279,8 +279,8 @@ const VettingTask = () => {
               </div>
               <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
                 <div className="flex items-center gap-4">
-                  <div className="bg-orange-100 p-3 rounded-lg">
-                    <Clock size={24} className="text-orange-600" />
+                  <div className="bg-purple-100 p-3 rounded-lg">
+                    <Clock size={24} className="text-purple-600" />
                   </div>
                   <div>
                     <p className="text-gray-600 text-sm font-medium">Available Faculty</p>
@@ -293,10 +293,10 @@ const VettingTask = () => {
         </div>
 
         {/* Assignment Form */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 mb-8 overflow-hidden">
-          <div className="bg-gradient-to-r from-indigo-50 to-blue-50 px-6 py-4 border-b border-gray-200">
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-200 mb-8 overflow-hidden">
+          <div className="bg-white px-6 py-4 border-b border-gray-200">
             <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-              <Plus size={20} className="text-blue-600" />
+              <Plus size={20} className="text-purple-600" />
               Create New Assignment
             </h2>
           </div>
@@ -306,7 +306,7 @@ const VettingTask = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                    <User size={16} className="text-blue-600" />
+                    <User size={16} className="text-purple-600" />
                     Question Faculty
                   </label>
                   <div className="relative">
@@ -318,7 +318,7 @@ const VettingTask = () => {
                       required
                       list="faculty-suggestions"
                       placeholder="Type or select Faculty ID/Name"
-                      className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-300 bg-gray-50 focus:bg-white text-gray-800 placeholder-gray-500"
+                      className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-300 bg-gray-50 focus:bg-white text-gray-800 placeholder-gray-500"
                     />
                     <datalist id="faculty-suggestions">
                       {facultyList.map((faculty, idx) => (
@@ -332,7 +332,7 @@ const VettingTask = () => {
 
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                    <UserCheck size={16} className="text-green-600" />
+                    <UserCheck size={16} className="text-purple-600" />
                     Vetting Faculty
                   </label>
                   <div className="relative">
@@ -344,7 +344,7 @@ const VettingTask = () => {
                       required
                       list="vetting-suggestions"
                       placeholder="Type or select Faculty ID/Name"
-                      className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all duration-300 bg-gray-50 focus:bg-white text-gray-800 placeholder-gray-500"
+                      className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-300 bg-gray-50 focus:bg-white text-gray-800 placeholder-gray-500"
                     />
                     <datalist id="vetting-suggestions">
                       {facultyList.map((faculty, idx) => (
@@ -360,7 +360,7 @@ const VettingTask = () => {
               <div className="mt-8 flex justify-center">
                 <button
                   type="submit"
-                  className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold px-8 py-3 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2"
+                  className="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-8 py-3 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2"
                 >
                   <Plus size={18} />
                   Assign Task
@@ -374,10 +374,10 @@ const VettingTask = () => {
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
           {/* Assigned Faculty Table */}
           <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b border-gray-200">
+            <div className="bg-white px-6 py-4 border-b border-gray-200">
               <div className="flex items-center justify-between">
                 <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-                  <ListChecks size={20} className="text-blue-600" />
+                  <ListChecks size={20} className="text-purple-600" />
                   Assigned Faculty ({filteredAssignedList.length})
                 </h3>
                 <div className="flex items-center gap-3">
@@ -388,7 +388,7 @@ const VettingTask = () => {
                       placeholder="Search assignments..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-200 focus:border-blue-500 bg-white"
+                      className="pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-200 focus:border-purple-500 bg-white"
                     />
                   </div>
                 </div>
@@ -397,7 +397,7 @@ const VettingTask = () => {
 
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
+                <thead className="bg-white">
                   <tr>
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                       Question Faculty
@@ -431,7 +431,7 @@ const VettingTask = () => {
                               <select
                                 value={editFacultyId}
                                 onChange={(e) => setEditFacultyId(e.target.value)}
-                                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                               >
                                 {facultyList.map((f) => (
                                   <option key={f.faculty_id} value={f.faculty_id}>
@@ -441,8 +441,8 @@ const VettingTask = () => {
                               </select>
                             ) : (
                               <div className="flex items-center gap-3">
-                                <div className="bg-blue-100 p-2 rounded-lg">
-                                  <User size={16} className="text-blue-600" />
+                                <div className="bg-purple-100 p-2 rounded-lg">
+                                  <User size={16} className="text-purple-600" />
                                 </div>
                                 <div>
                                   <p className="font-semibold text-gray-900">{item.faculty_id}</p>
@@ -458,7 +458,7 @@ const VettingTask = () => {
                               <select
                                 value={editVettingId}
                                 onChange={(e) => setEditVettingId(e.target.value)}
-                                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                               >
                                 {facultyList.map((f) => (
                                   <option key={f.faculty_id} value={f.faculty_id}>
@@ -468,8 +468,8 @@ const VettingTask = () => {
                               </select>
                             ) : (
                               <div className="flex items-center gap-3">
-                                <div className="bg-green-100 p-2 rounded-lg">
-                                  <UserCheck size={16} className="text-green-600" />
+                                <div className="bg-purple-100 p-2 rounded-lg">
+                                  <UserCheck size={16} className="text-purple-600" />
                                 </div>
                                 <div>
                                   <p className="font-semibold text-gray-900">{item.vetting_id}</p>
@@ -502,7 +502,7 @@ const VettingTask = () => {
                               ) : (
                                 <>
                                   <button
-                                    className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-lg transition-colors duration-200 flex items-center gap-1"
+                                    className="bg-purple-600 hover:bg-purple-600 text-white p-2 rounded-lg transition-colors duration-200 flex items-center gap-1"
                                     onClick={() => handleEdit(idx, item)}
                                     title="Edit"
                                   >
@@ -530,16 +530,16 @@ const VettingTask = () => {
 
           {/* Available Faculty Table */}
           <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-            <div className="bg-gradient-to-r from-green-50 to-emerald-50 px-6 py-4 border-b border-gray-200">
+            <div className="bg-white px-6 py-4 border-b border-gray-200">
               <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-                <Users size={20} className="text-green-600" />
+                <Users size={20} className="text-purple-600" />
                 Available Faculty
               </h3>
             </div>
 
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
+                <thead className="bg-white">
                   <tr>
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                       Available Question Faculty
@@ -575,8 +575,8 @@ const VettingTask = () => {
                         <td className="px-6 py-4">
                           {availableQuestionFaculty[idx] ? (
                             <div className="flex items-center gap-3">
-                              <div className="bg-blue-100 p-2 rounded-lg">
-                                <User size={16} className="text-blue-600" />
+                              <div className="bg-purple-100 p-2 rounded-lg">
+                                <User size={16} className="text-purple-600" />
                               </div>
                               <div>
                                 <p className="font-semibold text-gray-900">
@@ -596,8 +596,8 @@ const VettingTask = () => {
                         <td className="px-6 py-4">
                           {availableVettingFaculty[idx] ? (
                             <div className="flex items-center gap-3">
-                              <div className="bg-green-100 p-2 rounded-lg">
-                                <UserCheck size={16} className="text-green-600" />
+                              <div className="bg-purple-100 p-2 rounded-lg">
+                                <UserCheck size={16} className="text-purple-600" />
                               </div>
                               <div>
                                 <p className="font-semibold text-gray-900">

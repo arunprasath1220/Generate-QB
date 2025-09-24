@@ -136,8 +136,8 @@ const QuestionDetails = () => {
       flex: 1,
       renderCell: (params) => (
         <div className="flex items-center gap-2">
-          <div className="bg-blue-100 p-1 rounded">
-            <Users size={14} className="text-blue-600" />
+          <div className="bg-purple-100 p-1 rounded">
+            <Users size={14} className="text-purple-600" />
           </div>
           <span className="font-medium">{params.value}</span>
         </div>
@@ -172,8 +172,8 @@ const QuestionDetails = () => {
       flex: 1.2,
       renderCell: (params) => (
         <div className="flex items-center gap-2">
-          <div className="bg-orange-100 p-1 rounded">
-            <Clock size={14} className="text-orange-600" />
+          <div className="bg-purple-100 p-1 rounded">
+            <Clock size={14} className="text-purple-600" />
           </div>
           <span className="text-sm">{params.value}</span>
         </div>
@@ -222,7 +222,7 @@ const QuestionDetails = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/20 to-indigo-50/30">
+    <div className="flex min-h-screen bg-purple-50">
       {/* Sidebar */}
       <div className="hidden lg:flex flex-col fixed top-0 left-0 w-64 h-screen bg-white shadow-xl z-50 border-r border-gray-200">
         <AdminNavbar />
@@ -247,7 +247,7 @@ const QuestionDetails = () => {
       <div className="flex-1 px-6 pt-6 pb-10 lg:ml-64 overflow-y-auto" style={{ maxHeight: "100vh" }}>
         {/* Header Section */}
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 mb-8 overflow-hidden">
-          <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 px-6 py-8">
+          <div className="bg-purple-600 px-6 py-8">
             <div className="flex flex-wrap justify-between items-center">
               <div className="flex items-center gap-4">
                 <button
@@ -264,7 +264,7 @@ const QuestionDetails = () => {
                     <h1 className="text-2xl sm:text-3xl font-bold text-white">
                       Question Details
                     </h1>
-                    <p className="text-blue-100 mt-1">
+                    <p className="text-purple-100 mt-1">
                       Monitor and track all question submissions and their status
                     </p>
                   </div>
@@ -287,8 +287,8 @@ const QuestionDetails = () => {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
                 <div className="flex items-center gap-4">
-                  <div className="bg-blue-100 p-3 rounded-lg">
-                    <FileText size={24} className="text-blue-600" />
+                  <div className="bg-purple-100 p-3 rounded-lg">
+                    <FileText size={24} className="text-purple-600" />
                   </div>
                   <div>
                     <p className="text-gray-600 text-sm font-medium">Total Questions</p>
@@ -298,8 +298,8 @@ const QuestionDetails = () => {
               </div>
               <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
                 <div className="flex items-center gap-4">
-                  <div className="bg-green-100 p-3 rounded-lg">
-                    <CheckCircle size={24} className="text-green-600" />
+                  <div className="bg-purple-100 p-3 rounded-lg">
+                    <CheckCircle size={24} className="text-purple-600" />
                   </div>
                   <div>
                     <p className="text-gray-600 text-sm font-medium">Approved</p>
@@ -309,8 +309,8 @@ const QuestionDetails = () => {
               </div>
               <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
                 <div className="flex items-center gap-4">
-                  <div className="bg-yellow-100 p-3 rounded-lg">
-                    <AlertCircle size={24} className="text-yellow-600" />
+                  <div className="bg-purple-100 p-3 rounded-lg">
+                    <AlertCircle size={24} className="text-purple-600" />
                   </div>
                   <div>
                     <p className="text-gray-600 text-sm font-medium">Pending</p>
@@ -320,8 +320,8 @@ const QuestionDetails = () => {
               </div>
               <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
                 <div className="flex items-center gap-4">
-                  <div className="bg-red-100 p-3 rounded-lg">
-                    <XCircle size={24} className="text-red-600" />
+                  <div className="bg-purple-100 p-3 rounded-lg">
+                    <XCircle size={24} className="text-purple-600" />
                   </div>
                   <div>
                     <p className="text-gray-600 text-sm font-medium">Rejected</p>
@@ -335,9 +335,9 @@ const QuestionDetails = () => {
 
         {/* Filters and Search */}
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 mb-8 overflow-hidden">
-          <div className="bg-gradient-to-r from-indigo-50 to-blue-50 px-6 py-4 border-b border-gray-200">
+          <div className="bg-purple-50 px-6 py-4 border-b border-gray-200">
             <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-              <Filter size={20} className="text-blue-600" />
+              <Filter size={20} className="text-purple-600" />
               Filters & Search
             </h2>
           </div>
@@ -353,7 +353,7 @@ const QuestionDetails = () => {
                     placeholder="Search by Faculty ID, Course Code, or Unit..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-300 bg-gray-50 focus:bg-white"
+                    className="w-full pl-10 pr-4 py-3 rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-300 bg-gray-50 focus:bg-white"
                   />
                 </div>
               </div>
@@ -363,7 +363,7 @@ const QuestionDetails = () => {
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-300 bg-gray-50 focus:bg-white"
+                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-300 bg-gray-50 focus:bg-white"
                 >
                   <option value="all">All Status</option>
                   <option value="approved">Approved</option>
@@ -380,14 +380,14 @@ const QuestionDetails = () => {
           <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200">
             <div className="flex items-center justify-between">
               <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-                <TrendingUp size={20} className="text-blue-600" />
+                <TrendingUp size={20} className="text-purple-600" />
                 Question History ({filteredRows.length} items)
               </h3>
               <div className="flex items-center gap-3">
                 <button
                   onClick={handleExportCSV}
                   disabled={!filteredRows.length}
-                  className={`bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center gap-2 ${!filteredRows.length ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  className={`bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center gap-2 ${!filteredRows.length ? 'opacity-50 cursor-not-allowed' : ''}`}
                   aria-disabled={!filteredRows.length}
                   title={!filteredRows.length ? 'No rows to export' : 'Export to CSV'}
                 >
@@ -453,7 +453,7 @@ const QuestionDetails = () => {
                     backgroundColor: '#ffffff',
                   },
                   '& .MuiCircularProgress-root': {
-                    color: '#3b82f6',
+                    color: '#9333ea',
                   },
                 }}
               />

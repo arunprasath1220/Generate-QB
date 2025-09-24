@@ -12,9 +12,8 @@ import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 
-
 const prependImageBaseUrl = (html) => {
-  const baseUrl = "http://localhost:7000"; // change this if your server is hosted elsewhere
+  const baseUrl = "http://localhost:7000";
   return html.replace(
     /<img src="\/uploads\//g,
     `<img src="${baseUrl}/uploads/`
@@ -22,7 +21,7 @@ const prependImageBaseUrl = (html) => {
 };
 
 const AddQuestions = () => {
-  const navigate = useNavigate(); // Add this line
+  const navigate = useNavigate();
   const token = localStorage.getItem("token");
   const [formData, setFormData] = useState({
     unit: "",
@@ -38,25 +37,25 @@ const AddQuestions = () => {
     option_b: "",
     option_c: "",
     option_d: "",
-    vetting_id: "",
-    faculty_id: "",
+    faculty_id: "", // Retained faculty_id
+    vetting_id: "", // Re-add vetting_id to state
   });
-  
+
   const location = useLocation();
-const { unit, mark } = location.state || {};
+  const { unit, mark } = location.state || {};
   useEffect(() => {
-  setFormData((prev) => ({
-    ...prev,
-    unit: unit || "",
-    mark: mark || "",
-  }));
-}, [unit, mark]);
+    setFormData((prev) => ({
+      ...prev,
+      unit: unit || "",
+      mark: mark || "",
+    }));
+  }, [unit, mark]);
   const [isUpload, setIsUpload] = useState(false);
   const [file, setFile] = useState(null);
   const [courseCode, setCourseCode] = useState("");
-  const [vettingId, setVettingId] = useState("");
   const [openSidebar, setOpenSidebar] = useState(false);
   const [degree, setDegree] = useState(""); // Add degree state
+  const [vettingId, setVettingId] = useState(""); // State to hold the fetched vetting ID
 
   const user = useSelector((state) => state.user.user);
   const email = user?.email;
@@ -115,26 +114,27 @@ const { unit, mark } = location.state || {};
       });
   }, [email, token]);
 
-  // Fetch vetting ID
+  // Fetch faculty ID and Vetting ID
   useEffect(() => {
     if (!facultyId) return;
 
     setFormData((prev) => ({ ...prev, faculty_id: facultyId }));
 
+    // Re-enable fetching the vetting_id
     axios
       .get("http://localhost:7000/api/faculty/get-vetting-id", {
         params: { faculty_id: facultyId },
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
-        setVettingId(res.data.vetting_id);
-        setFormData((prev) => ({
-          ...prev,
-          vetting_id: res.data.vetting_id,
-        }));
+        // Store the fetched vetting_id in state
+        if (res.data && res.data.vetting_id) {
+          setVettingId(res.data.vetting_id);
+          setFormData((prev) => ({ ...prev, vetting_id: res.data.vetting_id }));
+        }
       })
       .catch(() => {
-        toast.error("Failed to load vetting ID.");
+        toast.error("Failed to load vetting ID. Cannot submit questions.");
       });
   }, [facultyId, token]);
 
@@ -142,7 +142,7 @@ const { unit, mark } = location.state || {};
   useEffect(() => {
     if (!facultyId) return;
     axios
-      .get("http://localhost:7000/api/admin/faculty-list", {
+      .get("http://localhost:7000/api/admin/faculty-list", { // Assuming this endpoint returns the faculty list from the admin routes
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
@@ -204,11 +204,10 @@ const { unit, mark } = location.state || {};
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.vetting_id && vettingId) {
-      setFormData((prev) => ({
-        ...prev,
-        vetting_id: vettingId,
-      }));
+    // Add a check for the vettingId before proceeding
+    if (!vettingId) {
+      toast.error("Vetting ID is missing. Cannot submit question.");
+      return;
     }
 
     if (!formData.faculty_id && facultyId) {
@@ -218,8 +217,8 @@ const { unit, mark } = location.state || {};
       }));
     }
 
-    if (!formData.vetting_id || !formData.faculty_id) {
-      toast.error("Missing vetting or faculty ID. Try again.");
+    if (!formData.faculty_id) {
+      toast.error("Missing faculty ID. Try again.");
       return;
     }
 
@@ -261,13 +260,13 @@ const { unit, mark } = location.state || {};
         const uploadFormData = new FormData();
         uploadFormData.append("file", file);
         uploadFormData.append("course_code", courseCode);
-        if (vettingId) uploadFormData.append("vetting_id", vettingId);
         if (facultyId) uploadFormData.append("faculty_id", facultyId);
+        // Add vetting_id to the upload form data
+        uploadFormData.append("vetting_id", vettingId);
 
         // Log FormData contents properly
         console.log("File being uploaded:", file.name);
         console.log("Course code:", courseCode);
-        console.log("Vetting ID:", vettingId);
         console.log("Faculty ID:", facultyId);
 
         await axios.post(
@@ -295,17 +294,32 @@ const { unit, mark } = location.state || {};
           }
         }
 
-        // Handle question form submission
-        const submissionData = {
+        // --- START: Data Formatting Fix ---
+        let submissionData = {
           ...formData,
-          vetting_id: formData.vetting_id || vettingId,
+          mark: parseInt(formData.mark, 10), // Ensure mark is a number
           faculty_id: formData.faculty_id || facultyId,
-          figure: uploadedFigurePath, // Add the figure path to submission data
+          vetting_id: vettingId,
+          figure: uploadedFigurePath,
         };
+
+        // If it's an MCQ, wrap options and answer in <p> tags to match backend expectation
+        if (submissionData.mark === 1) {
+          submissionData = {
+            ...submissionData,
+            option_a: `<p>${formData.option_a}</p>`,
+            option_b: `<p>${formData.option_b}</p>`,
+            option_c: `<p>${formData.option_c}</p>`,
+            option_d: `<p>${formData.option_d}</p>`,
+            // The answer is already one of the options, so wrap it too.
+            answer: `<p>${formData.answer}</p>`,
+          };
+        }
+        // --- END: Data Formatting Fix ---
 
         await axios.post(
           "http://localhost:7000/api/faculty/add-question",
-          submissionData,
+          submissionData, // Use the formatted submissionData
           {
             headers: {
               "Content-Type": "application/json",
@@ -355,7 +369,6 @@ const { unit, mark } = location.state || {};
         option_b: "",
         option_c: "",
         option_d: "",
-        vetting_id: vettingId,
         faculty_id: facultyId,
       });
       setFile(null);
@@ -397,15 +410,15 @@ const { unit, mark } = location.state || {};
       >
         {/* Header and form container */}
         <div className="w-full">
-          <div className="flex flex-wrap justify-between items-center mb-5 p-4 sticky top-0 z-10 bg-white shadow-md rounded-md">
+          <div className="flex flex-wrap justify-between items-center mb-5 p-4 sticky top-0 z-10 bg-white shadow-lg rounded-lg border-l-4 border-[#4b37cd]">
             <div className="flex items-center gap-4">
               <button
-                className="block md:hidden text-gray-700"
+                className="block md:hidden text-[#4b37cd] hover:text-[#3d2ba7] transition-colors"
                 onClick={() => setOpenSidebar(!openSidebar)}
               >
                 <Menu size={28} />
               </button>
-              <h2 className="text-2xl font-bold text-gray-800">
+              <h2 className="text-2xl font-bold text-[#4b37cd]">
                 Add Question Bank
               </h2>
             </div>
@@ -415,7 +428,7 @@ const { unit, mark } = location.state || {};
           </div>
           <div className="flex justify-start mb-4">
             <button
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 font-semibold shadow"
+              className="px-6 py-3 bg-[#4b37cd] text-white rounded-lg hover:bg-[#3d2ba7] font-semibold shadow-md transition-all duration-200"
               onClick={() => navigate("/manageqb")}
             >
               Back
@@ -424,20 +437,20 @@ const { unit, mark } = location.state || {};
           <div className="flex justify-center w-full">
             <form
               onSubmit={handleSubmit}
-              className="w-full bg-white/90 border border-gray-200 shadow-xl px-8 py-8 space-y-8 mb-5"
+              className="w-full bg-white border-2 border-[#4b37cd]/20 shadow-xl rounded-lg px-8 py-8 space-y-8 mb-5"
             >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {/* Left column */}
                 <div className="space-y-6">
                   <div className="space-y-1">
-                    <label className="font-medium text-gray-700 flex items-center gap-2">
-                      <User size={18} /> Input Method
+                    <label className="font-semibold text-[#4b37cd] flex items-center gap-2">
+                      <User size={18} className="text-[#4b37cd]" /> Input Method
                     </label>
                     <select
                       name="input_method"
                       value={isUpload ? "upload" : "input"}
                       onChange={(e) => setIsUpload(e.target.value === "upload")}
-                      className="w-full px-4 py-2 rounded-xl border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                      className="w-full px-4 py-3 rounded-lg border-2 border-[#4b37cd]/30 shadow-sm focus:ring-2 focus:ring-[#4b37cd] focus:border-[#4b37cd] focus:outline-none transition-all duration-200"
                     >
                       <option value="input">Manual Input</option>
                       <option value="upload">File Upload</option>
@@ -447,23 +460,23 @@ const { unit, mark } = location.state || {};
                   {!isUpload && (
                     <>
                       <div className="space-y-1">
-                        <label className="font-medium text-gray-700 flex items-center gap-2">
-                          <ListChecks size={18} /> Course Code
+                        <label className="font-semibold text-[#4b37cd] flex items-center gap-2">
+                          <ListChecks size={18} className="text-[#4b37cd]" /> Course Code
                         </label>
-                        <div className="w-full px-4 py-2 rounded-xl border border-gray-300 shadow-sm bg-gray-100">
+                        <div className="w-full px-4 py-3 rounded-lg border-2 border-[#4b37cd]/30 shadow-sm bg-gray-50 text-[#4b37cd] font-medium">
                           {courseCode || "Loading..."}
                         </div>
                       </div>
                       <div className="space-y-1">
-                        <label className="font-medium text-gray-700 flex items-center gap-2">
-                          <ListChecks size={18} /> Unit
+                        <label className="font-semibold text-[#4b37cd] flex items-center gap-2">
+                          <ListChecks size={18} className="text-[#4b37cd]" /> Unit
                         </label>
                         <select
                           name="unit"
                           value={formData.unit}
                           onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
                           required
-                          className="w-full px-4 py-2 rounded-xl border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                          className="w-full px-4 py-3 rounded-lg border-2 border-[#4b37cd]/30 shadow-sm focus:ring-2 focus:ring-[#4b37cd] focus:border-[#4b37cd] focus:outline-none transition-all duration-200"
                         >
                           <option value="">-- Select Unit --</option>
                           <option value="Unit 1">Unit 1</option>
@@ -475,15 +488,15 @@ const { unit, mark } = location.state || {};
                       </div>
 
                       <div className="space-y-1">
-                        <label className="font-medium text-gray-700 flex items-center gap-2">
-                          <ListChecks size={18} /> Portion
+                        <label className="font-semibold text-[#4b37cd] flex items-center gap-2">
+                          <ListChecks size={18} className="text-[#4b37cd]" /> Portion
                         </label>
                         <select
                           name="portion"
                           value={formData.portion}
                           onChange={handleChange}
                           required
-                          className="w-full px-4 py-2 rounded-xl border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                          className="w-full px-4 py-3 rounded-lg border-2 border-[#4b37cd]/30 shadow-sm focus:ring-2 focus:ring-[#4b37cd] focus:border-[#4b37cd] focus:outline-none transition-all duration-200"
                         >
                           <option value="">-- Select Portion --</option>
                           <option value="A">A</option>
@@ -492,8 +505,8 @@ const { unit, mark } = location.state || {};
                       </div>
 
                       <div className="space-y-1">
-                        <label className="font-medium text-gray-700 flex items-center gap-2">
-                          <ListChecks size={18} /> Topic
+                        <label className="font-semibold text-[#4b37cd] flex items-center gap-2">
+                          <ListChecks size={18} className="text-[#4b37cd]" /> Topic
                         </label>
                         <input
                           type="text"
@@ -501,13 +514,13 @@ const { unit, mark } = location.state || {};
                           value={formData.topic}
                           onChange={handleChange}
                           required
-                          className="w-full px-4 py-2 rounded-xl border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                          className="w-full px-4 py-3 rounded-lg border-2 border-[#4b37cd]/30 shadow-sm focus:ring-2 focus:ring-[#4b37cd] focus:border-[#4b37cd] focus:outline-none transition-all duration-200"
                         />
                       </div>
 
                       <div className="space-y-1">
-                        <label className="font-medium text-gray-700 flex items-center gap-2">
-                          <ListChecks size={18} /> Mark
+                        <label className="font-semibold text-[#4b37cd] flex items-center gap-2">
+                          <ListChecks size={18} className="text-[#4b37cd]" /> Mark
                         </label>
                         <select
                           name="mark"
@@ -515,7 +528,7 @@ const { unit, mark } = location.state || {};
                            onChange={(e) => setFormData({ ...formData, mark: e.target.value })}
 
                           required
-                          className="w-full px-4 py-2 rounded-xl border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                          className="w-full px-4 py-3 rounded-lg border-2 border-[#4b37cd]/30 shadow-sm focus:ring-2 focus:ring-[#4b37cd] focus:border-[#4b37cd] focus:outline-none transition-all duration-200"
                         >
                           <option value="">-- Select Mark --</option>
                           {degree === "PG" ? (
@@ -546,19 +559,19 @@ const { unit, mark } = location.state || {};
                   {/* Only show file upload if uploading */}
                   {isUpload && (
                     <div className="space-y-6 mt-6">
-                      <label className="font-medium text-gray-700 flex items-center gap-2">
-                        <ListChecks size={18} /> Upload Question File
+                      <label className="font-semibold text-[#4b37cd] flex items-center gap-2">
+                        <ListChecks size={18} className="text-[#4b37cd]" /> Upload Question File
                       </label>
                       <input
                         type="file"
                         name="question_file"
                         onChange={handleFileChange}
                         accept=".xlsx,.csv,.xls"
-                        className="w-full px-4 py-2 rounded-xl border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                        className="w-full px-4 py-3 rounded-lg border-2 border-[#4b37cd]/30 shadow-sm focus:ring-2 focus:ring-[#4b37cd] focus:border-[#4b37cd] focus:outline-none transition-all duration-200 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#4b37cd] file:text-white hover:file:bg-[#3d2ba7]"
                         required
                       />
                       {file && (
-                        <p className="text-sm text-green-600 mt-1">
+                        <p className="text-sm text-[#4b37cd] mt-1 font-medium">
                           Selected: {file.name}
                         </p>
                       )}
@@ -569,10 +582,10 @@ const { unit, mark } = location.state || {};
                 {!isUpload && (
                   <div className="space-y-6">
                     <div className="space-y-1">
-                      <label className="font-medium text-gray-700 flex items-center gap-2">
-                        <ListChecks size={18} /> Question
+                      <label className="font-semibold text-[#4b37cd] flex items-center gap-2">
+                        <ListChecks size={18} className="text-[#4b37cd]" /> Question
                       </label>
-                      <div className="bg-white border border-gray-300 rounded-xl shadow-sm p-2">
+                      <div className="bg-white border-2 border-[#4b37cd]/30 rounded-lg shadow-sm p-3 focus-within:ring-2 focus-within:ring-[#4b37cd] focus-within:border-[#4b37cd] transition-all duration-200">
                         <CKEditor
                           editor={ClassicEditor}
                           data={prependImageBaseUrl(formData.question)} // This ensures CKEditor displays the image
@@ -582,7 +595,8 @@ const { unit, mark } = location.state || {};
                           }}
                           config={{
                             extraPlugins: [CustomUploadAdapterPlugin],
-                            toolbar: [
+                            toolbar:
+                            [
                               "heading",
                               "|",
                               "bold",
@@ -605,69 +619,69 @@ const { unit, mark } = location.state || {};
                     {formData.mark === "1" && (
                       <>
                         <div className="space-y-1">
-                          <label className="font-medium text-gray-700 flex items-center gap-2">
-                            <ListChecks size={18} /> Option A
+                          <label className="font-semibold text-[#4b37cd] flex items-center gap-2">
+                            <ListChecks size={18} className="text-[#4b37cd]" /> Option A
                           </label>
                           <input
                             type="text"
                             name="option_a"
                             value={formData.option_a}
                             onChange={handleChange}
-                            className="w-full px-4 py-2 rounded-xl border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                            className="w-full px-4 py-3 rounded-lg border-2 border-[#4b37cd]/30 shadow-sm focus:ring-2 focus:ring-[#4b37cd] focus:border-[#4b37cd] focus:outline-none transition-all duration-200"
                           />
                         </div>
 
                         <div className="space-y-1">
-                          <label className="font-medium text-gray-700 flex items-center gap-2">
-                            <ListChecks size={18} /> Option B
+                          <label className="font-semibold text-[#4b37cd] flex items-center gap-2">
+                            <ListChecks size={18} className="text-[#4b37cd]" /> Option B
                           </label>
                           <input
                             type="text"
                             name="option_b"
                             value={formData.option_b}
                             onChange={handleChange}
-                            className="w-full px-4 py-2 rounded-xl border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                            className="w-full px-4 py-3 rounded-lg border-2 border-[#4b37cd]/30 shadow-sm focus:ring-2 focus:ring-[#4b37cd] focus:border-[#4b37cd] focus:outline-none transition-all duration-200"
                           />
                         </div>
 
                         <div className="space-y-1">
-                          <label className="font-medium text-gray-700 flex items-center gap-2">
-                            <ListChecks size={18} /> Option C
+                          <label className="font-semibold text-[#4b37cd] flex items-center gap-2">
+                            <ListChecks size={18} className="text-[#4b37cd]" /> Option C
                           </label>
                           <input
                             type="text"
                             name="option_c"
                             value={formData.option_c}
                             onChange={handleChange}
-                            className="w-full px-4 py-2 rounded-xl border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                            className="w-full px-4 py-3 rounded-lg border-2 border-[#4b37cd]/30 shadow-sm focus:ring-2 focus:ring-[#4b37cd] focus:border-[#4b37cd] focus:outline-none transition-all duration-200"
                           />
                         </div>
 
                         <div className="space-y-1">
-                          <label className="font-medium text-gray-700 flex items-center gap-2">
-                            <ListChecks size={18} /> Option D
+                          <label className="font-semibold text-[#4b37cd] flex items-center gap-2">
+                            <ListChecks size={18} className="text-[#4b37cd]" /> Option D
                           </label>
                           <input
                             type="text"
                             name="option_d"
                             value={formData.option_d}
                             onChange={handleChange}
-                            className="w-full px-4 py-2 rounded-xl border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                            className="w-full px-4 py-3 rounded-lg border-2 border-[#4b37cd]/30 shadow-sm focus:ring-2 focus:ring-[#4b37cd] focus:border-[#4b37cd] focus:outline-none transition-all duration-200"
                           />
                         </div>
                       </>
                     )}
                     {formData.mark === "1" ? (
                       <div className="space-y-1">
-                        <label className="font-medium text-gray-700 flex items-center gap-2">
-                          <ListChecks size={18} /> Answer
+                        <label className="font-semibold text-[#4b37cd] flex items-center gap-2">
+                          <ListChecks size={18} className="text-[#4b37cd]" /> Answer
                         </label>
                         <select
                           name="answer"
                           value={formData.answer}
                           onChange={handleChange}
                           required
-                          className="w-full px-4 py-2 rounded-xl border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                          className="w-full px-4 py-3 rounded-lg border-2 border-[#4b37cd]/30 shadow-sm focus:ring-2 focus:ring-[#4b37cd] focus:border-[#4b37cd] focus:outline-none transition-all duration-200"
                         >
                           <option value="">-- Select Option --</option>
                           <option value={formData.option_a}>
@@ -686,10 +700,10 @@ const { unit, mark } = location.state || {};
                       </div>
                     ) : (
                       <div className="space-y-1">
-                        <label className="font-medium text-gray-700 flex items-center gap-2">
-                          <ListChecks size={18} /> Answer
+                        <label className="font-semibold text-[#4b37cd] flex items-center gap-2">
+                          <ListChecks size={18} className="text-[#4b37cd]" /> Answer
                         </label>
-                        <div className="bg-white border border-gray-300 rounded-xl shadow-sm p-2">
+                        <div className="bg-white border-2 border-[#4b37cd]/30 rounded-lg shadow-sm p-3 focus-within:ring-2 focus-within:ring-[#4b37cd] focus-within:border-[#4b37cd] transition-all duration-200">
                           <CKEditor
                             editor={ClassicEditor}
                             data={prependImageBaseUrl(formData.answer)}
@@ -728,15 +742,15 @@ const { unit, mark } = location.state || {};
                       </div>
                     )}
                     <div className="space-y-1">
-                      <label className="font-medium text-gray-700 flex items-center gap-2">
-                        <ListChecks size={18} /> Competence level
+                      <label className="font-semibold text-[#4b37cd] flex items-center gap-2">
+                        <ListChecks size={18} className="text-[#4b37cd]" /> Competence level
                       </label>
                       <select
                         name="competence_level"
                         value={formData.competence_level}
                         onChange={handleChange}
                         required
-                        className="w-full px-4 py-2 rounded-xl border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                        className="w-full px-4 py-3 rounded-lg border-2 border-[#4b37cd]/30 shadow-sm focus:ring-2 focus:ring-[#4b37cd] focus:border-[#4b37cd] focus:outline-none transition-all duration-200"
                       >
                         <option value="">-- Select Option --</option>
                         <option value="K1">K1 - Remember</option>
@@ -749,8 +763,8 @@ const { unit, mark } = location.state || {};
                     </div>
 
                     <div className="space-y-1">
-                      <label className="font-medium text-gray-700 flex items-center gap-2">
-                        <ListChecks size={18} /> Course outcome
+                      <label className="font-semibold text-[#4b37cd] flex items-center gap-2">
+                        <ListChecks size={18} className="text-[#4b37cd]" /> Course outcome
                       </label>
                       <input
                         type="text"
@@ -758,7 +772,7 @@ const { unit, mark } = location.state || {};
                         value={formData.course_outcome}
                         onChange={handleChange}
                         required
-                        className="w-full px-4 py-2 rounded-xl border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                        className="w-full px-4 py-3 rounded-lg border-2 border-[#4b37cd]/30 shadow-sm focus:ring-2 focus:ring-[#4b37cd] focus:border-[#4b37cd] focus:outline-none transition-all duration-200"
                       />
                     </div>
                   </div>
@@ -768,7 +782,7 @@ const { unit, mark } = location.state || {};
               <div className="flex justify-center">
                 <button
                   type="submit"
-                  className="w-full px-8 py-2 text-white bg-blue-600 rounded-xl hover:bg-blue-700 focus:outline-none font-bold text-lg shadow-xl transition"
+                  className="w-full px-8 py-4 text-white bg-[#4b37cd] rounded-lg hover:bg-[#3d2ba7] focus:outline-none focus:ring-2 focus:ring-[#4b37cd] focus:ring-offset-2 font-bold text-lg shadow-lg transition-all duration-200 transform hover:scale-105"
                 >
                   {isUpload ? "Upload File" : "Submit Question"}
                 </button>

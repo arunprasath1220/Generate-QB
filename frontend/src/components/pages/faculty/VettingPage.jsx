@@ -72,13 +72,13 @@ const VettingPage = () => {
     const getStatusColor = () => {
       switch (status) {
         case "pending":
-          return "bg-gradient-to-r from-yellow-500 to-orange-500 text-white";
+          return "bg-[#4b37cd]/70 text-white";
         case "accepted":
-          return "bg-gradient-to-r from-green-500 to-emerald-500 text-white";
+          return "bg-[#4b37cd] text-white";
         case "rejected":
-          return "bg-gradient-to-r from-red-500 to-pink-500 text-white";
+          return "bg-[#4b37cd]/40 text-white";
         default:
-          return "bg-gradient-to-r from-gray-500 to-gray-600 text-white";
+          return "bg-[#4b37cd]/60 text-white";
       }
     };
 
@@ -201,7 +201,7 @@ const VettingPage = () => {
     setLoading(true);
     axios
       .get(
-        `http://localhost:7000/api/admin/faculty-question-list?course_code=${courseCode}`,
+        `http://localhost:7000/api/faculty/faculty-question-list?course_code=${courseCode}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -246,7 +246,9 @@ const VettingPage = () => {
   });
 
   // Get unique statuses for filter
-  const availableStatuses = [...new Set(questionRows.map((row) => row.status))].sort();
+  const availableStatuses = [
+    ...new Set(questionRows.map((row) => row.status)),
+  ].sort();
 
   const handleView = (rowId) => {
     setLoading(true);
@@ -329,8 +331,8 @@ const VettingPage = () => {
       flex: 0.9,
       renderCell: (params) => (
         <div className="flex items-center gap-2">
-          <div className="bg-blue-100 p-1.5 rounded-lg">
-            <Users size={14} className="text-blue-600" />
+          <div className="bg-[#4b37cd]/10 p-1.5 rounded-lg">
+            <Users size={14} className="text-[#4b37cd]" />
           </div>
           <span className="font-medium text-gray-800">{params.value}</span>
         </div>
@@ -342,10 +344,10 @@ const VettingPage = () => {
       flex: 1,
       renderCell: (params) => (
         <div className="flex items-center gap-2">
-          <div className="bg-purple-100 p-1.5 rounded-lg">
-            <Target size={14} className="text-purple-600" />
+          <div className="bg-[#4b37cd]/10 p-1.5 rounded-lg">
+            <Target size={14} className="text-[#4b37cd]" />
           </div>
-          <span className="font-semibold text-purple-800 px-2 py-1 rounded">
+          <span className="font-semibold text-[#4b37cd] px-2 py-1 rounded">
             {params.value}
           </span>
         </div>
@@ -356,7 +358,7 @@ const VettingPage = () => {
       headerName: "Unit",
       flex: 0.5,
       renderCell: (params) => (
-        <span className="font-bold text-indigo-800 px-2 py-1 rounded">
+        <span className="font-bold text-[#4b37cd] px-2 py-1 rounded">
           {params.value}
         </span>
       ),
@@ -366,7 +368,7 @@ const VettingPage = () => {
       headerName: "Mark",
       flex: 0.5,
       renderCell: (params) => (
-        <span className="font-bold text-emerald-800 px-2 py-1 rounded">
+        <span className="font-bold text-[#4b37cd] px-2 py-1 rounded">
           {params.value}M
         </span>
       ),
@@ -377,8 +379,8 @@ const VettingPage = () => {
       flex: 1.2,
       renderCell: (params) => (
         <div className="flex items-center gap-2">
-          <div className="bg-orange-100 p-1.5 rounded-lg">
-            <FileText size={14} className="text-orange-600" />
+          <div className="bg-[#4b37cd]/10 p-1.5 rounded-lg">
+            <FileText size={14} className="text-[#4b37cd]" />
           </div>
           <span
             className="text-gray-700 font-medium truncate"
@@ -417,7 +419,7 @@ const VettingPage = () => {
       renderCell: (params) => (
         <button
           onClick={() => handleView(params.row.id)}
-          className="group relative p-2 bg-blue-100 hover:bg-blue-200 text-blue-600 rounded-lg transition-all duration-200 hover:scale-110 flex items-center gap-2 px-4"
+          className="group relative p-2 bg-[#4b37cd]/10 hover:bg-[#4b37cd]/20 text-[#4b37cd] rounded-lg transition-all duration-200 hover:scale-110 flex items-center gap-2 px-4"
           title="View & Review Question"
         >
           <Eye size={16} />
@@ -428,7 +430,7 @@ const VettingPage = () => {
   ];
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40">
+    <div className="flex min-h-screen bg-gray-50">
       {/* Sidebar */}
       <div className="hidden lg:flex flex-col fixed top-0 left-0 w-64 h-screen bg-white/80 backdrop-blur-xl shadow-2xl z-50 border-r border-gray-200/50">
         <FacultyNavbar />
@@ -457,8 +459,7 @@ const VettingPage = () => {
           {/* Enhanced Header Section */}
           <Fade in timeout={800}>
             <div className="bg-white rounded-2xl shadow-lg border border-gray-100 mb-8 overflow-hidden">
-
-              <div className="relative bg-gradient-to-r from-purple-600 via-indigo-700 to-blue-700 px-4 sm:px-8 py-10">
+              <div className="relative bg-[#4b37cd] px-4 sm:px-8 py-10">
                 <div className="flex flex-wrap justify-between items-center">
                   <div className="flex items-center gap-4 sm:gap-6 min-w-0 flex-1">
                     <button
@@ -475,12 +476,12 @@ const VettingPage = () => {
                         <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2 truncate">
                           Vetting Dashboard
                         </h1>
-                        <p className="text-purple-100 text-sm sm:text-lg">
+                        <p className="text-white/80 text-sm sm:text-lg">
                           Review and approve submitted questions
                         </p>
                         <div className="flex items-center gap-2 mt-2">
                           <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse flex-shrink-0" />
-                          <span className="text-purple-200 text-sm truncate">
+                          <span className="text-white/70 text-sm truncate">
                             {questionRows.length} Questions to Review
                           </span>
                         </div>
@@ -501,7 +502,7 @@ const VettingPage = () => {
                   <Grow in timeout={600}>
                     <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
                       <div className="flex items-center gap-2 sm:gap-3">
-                        <div className="bg-gradient-to-br from-blue-500 to-indigo-600 p-2 sm:p-3 rounded-xl flex-shrink-0">
+                        <div className="bg-[#4b37cd] p-2 sm:p-3 rounded-xl flex-shrink-0">
                           <FileText
                             size={window.innerWidth < 640 ? 16 : 20}
                             className="text-white"
@@ -521,7 +522,7 @@ const VettingPage = () => {
                   <Grow in timeout={800}>
                     <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
                       <div className="flex items-center gap-2 sm:gap-3">
-                        <div className="bg-gradient-to-br from-yellow-500 to-amber-600 p-2 sm:p-3 rounded-xl flex-shrink-0">
+                        <div className="bg-[#4b37cd]/70 p-2 sm:p-3 rounded-xl flex-shrink-0">
                           <Clock
                             size={window.innerWidth < 640 ? 16 : 20}
                             className="text-white"
@@ -544,7 +545,7 @@ const VettingPage = () => {
                   <Grow in timeout={1000}>
                     <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
                       <div className="flex items-center gap-2 sm:gap-3">
-                        <div className="bg-gradient-to-br from-red-500 to-pink-600 p-2 sm:p-3 rounded-xl flex-shrink-0">
+                        <div className="bg-[#4b37cd]/40 p-2 sm:p-3 rounded-xl flex-shrink-0">
                           <XSquare
                             size={window.innerWidth < 640 ? 16 : 20}
                             className="text-white"
@@ -568,7 +569,7 @@ const VettingPage = () => {
                   <Grow in timeout={1200}>
                     <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
                       <div className="flex items-center gap-2 sm:gap-3">
-                        <div className="bg-gradient-to-br from-purple-500 to-indigo-600 p-2 sm:p-3 rounded-xl flex-shrink-0">
+                        <div className="bg-[#4b37cd]/60 p-2 sm:p-3 rounded-xl flex-shrink-0">
                           <Sparkles
                             size={window.innerWidth < 640 ? 16 : 20}
                             className="text-white"
@@ -595,75 +596,19 @@ const VettingPage = () => {
           </Fade>
 
           {/* Enhanced Filters Section */}
-          <Fade in timeout={1000}>
+          {/* <Fade in timeout={1000}>
             <div className="bg-white/70 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 mb-8 p-4 sm:p-6">
-              <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-                <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center w-full">
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    <Search size={20} className="text-gray-400" />
-                    <span className="font-semibold text-gray-700">
-                      Filters:
-                    </span>
-                  </div>
-                  <div className="relative w-full sm:min-w-[250px] sm:max-w-[300px]">
-                    <input
-                      type="text"
-                      placeholder="Search faculty ID, topics, or units..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-full px-4 py-2 pl-10 bg-gray-50 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all duration-200"
-                    />
-                    <Search
-                      className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                      size={16}
-                    />
-                  </div>
-                  <div className="relative w-full sm:w-auto sm:min-w-[150px]">
-                    <select
-                      value={filterStatus}
-                      onChange={(e) => setFilterStatus(e.target.value)}
-                      className="w-full px-4 py-2 pl-10 bg-gray-50 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none appearance-none transition-all duration-200"
-                    >
-                      <option value="">All Status</option>
-                      {availableStatuses.map((status) => (
-                        <option
-                          key={status}
-                          value={status}
-                          className="capitalize"
-                        >
-                          {status}
-                        </option>
-                      ))}
-                    </select>
-                    <Filter
-                      className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                      size={16}
-                    />
-                  </div>
-                  {(searchTerm || filterStatus) && (
-                    <button
-                      onClick={() => {
-                        setSearchTerm("");
-                        setFilterStatus("");
-                      }}
-                      className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl transition-colors duration-200 flex items-center gap-2 flex-shrink-0 w-full sm:w-auto"
-                    >
-                      <X size={16} />
-                      Clear
-                    </button>
-                  )}
-                </div>
-              </div>
+              
             </div>
-          </Fade>
+          </Fade> */}
 
           {/* Enhanced Data Table */}
           <Fade in timeout={1200}>
             <div className="bg-white/70 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-200/50 overflow-hidden">
-              <div className="bg-gradient-to-r from-purple-500/10 via-indigo-500/10 to-blue-500/10 px-4 sm:px-8 py-6 border-b border-gray-200/50">
+              <div className="bg-[#4b37cd]/10 px-4 sm:px-8 py-6 border-b border-gray-200/50">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3 min-w-0 flex-1">
-                    <div className="bg-gradient-to-br from-purple-500 to-indigo-600 p-3 rounded-2xl shadow-lg flex-shrink-0">
+                    <div className="bg-[#4b37cd] p-3 rounded-2xl shadow-lg flex-shrink-0">
                       <Shield size={24} className="text-white" />
                     </div>
                     <div className="min-w-0 flex-1">
@@ -674,6 +619,66 @@ const VettingPage = () => {
                         Showing {filteredRows.length} of {questionRows.length}{" "}
                         questions for review
                       </p>
+                    </div>
+
+                    <div className="flex items-center gap-2 px-4 py-2 bg-[#4b37cd]/10 hover:bg-[#4b37cd]/20 text-[#4b37cd] rounded-xl transition-colors duration-200">
+                      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+                        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center w-full">
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <Search size={20} className="text-gray-400" />
+                            <span className="font-semibold text-gray-700">
+                              Filters:
+                            </span>
+                          </div>
+                          <div className="relative w-full sm:min-w-[250px] sm:max-w-[300px]">
+                            <input
+                              type="text"
+                              placeholder="Search faculty ID, topics, or units..."
+                              value={searchTerm}
+                              onChange={(e) => setSearchTerm(e.target.value)}
+                              className="w-full px-4 py-2 pl-10 bg-gray-50 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#4b37cd] focus:border-[#4b37cd] outline-none transition-all duration-200"
+                            />
+                            <Search
+                              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                              size={16}
+                            />
+                          </div>
+                          <div className="relative w-full sm:w-auto sm:min-w-[150px]">
+                            <select
+                              value={filterStatus}
+                              onChange={(e) => setFilterStatus(e.target.value)}
+                              className="w-full px-4 py-2 pl-10 bg-gray-50 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#4b37cd] focus:border-[#4b37cd] outline-none appearance-none transition-all duration-200"
+                            >
+                              <option value="">All Status</option>
+                              {availableStatuses.map((status) => (
+                                <option
+                                  key={status}
+                                  value={status}
+                                  className="capitalize"
+                                >
+                                  {status}
+                                </option>
+                              ))}
+                            </select>
+                            <Filter
+                              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                              size={16}
+                            />
+                          </div>
+                          {(searchTerm || filterStatus) && (
+                            <button
+                              onClick={() => {
+                                setSearchTerm("");
+                                setFilterStatus("");
+                              }}
+                              className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl transition-colors duration-200 flex items-center gap-2 flex-shrink-0 w-full sm:w-auto"
+                            >
+                              <X size={16} />
+                              Clear
+                            </button>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -708,8 +713,8 @@ const VettingPage = () => {
                     slots={{
                       noRowsOverlay: () => (
                         <div className="flex flex-col items-center justify-center h-64 p-4">
-                          <div className="bg-gradient-to-br from-gray-100 to-gray-200 p-6 rounded-3xl mb-6 shadow-lg">
-                            <Shield size={48} className="text-gray-400" />
+                          <div className="bg-[#4b37cd]/10 p-6 rounded-3xl mb-6 shadow-lg">
+                            <Shield size={48} className="text-[#4b37cd]" />
                           </div>
                           <h3 className="text-lg sm:text-xl font-bold text-gray-700 mb-2 text-center">
                             No Vetting Tasks Assigned
@@ -788,7 +793,7 @@ const VettingPage = () => {
                   }`}
                 >
                   {/* Modal Header */}
-                  <div className="bg-gradient-to-r from-purple-600 to-indigo-700 px-4 sm:px-8 py-6 border-b border-gray-200">
+                  <div className="bg-[#4b37cd] px-4 sm:px-8 py-6 border-b border-gray-200">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4 min-w-0 flex-1">
                         <div className="bg-white/20 p-3 rounded-2xl backdrop-blur-sm flex-shrink-0">
@@ -798,7 +803,7 @@ const VettingPage = () => {
                           <h2 className="text-xl sm:text-2xl font-bold text-white truncate">
                             Question Vetting
                           </h2>
-                          <p className="text-purple-100 mt-1 text-sm sm:text-base">
+                          <p className="text-white/80 mt-1 text-sm sm:text-base">
                             {selectedQuestion.unit} - {selectedQuestion.mark}M
                             Question
                           </p>
@@ -855,7 +860,7 @@ const VettingPage = () => {
                       <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
                         <FileText
                           size={24}
-                          className="text-blue-600 flex-shrink-0"
+                          className="text-[#4b37cd] flex-shrink-0"
                         />
                         <span className="truncate">Question Details</span>
                       </h3>
@@ -864,8 +869,8 @@ const VettingPage = () => {
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
                         <div className="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm">
                           <div className="flex items-center gap-3">
-                            <div className="bg-blue-100 p-2 rounded-lg">
-                              <Target size={18} className="text-blue-600" />
+                            <div className="bg-[#4b37cd]/10 p-2 rounded-lg">
+                              <Target size={18} className="text-[#4b37cd]" />
                             </div>
                             <div>
                               <p className="text-sm font-medium text-gray-600">
@@ -879,8 +884,8 @@ const VettingPage = () => {
                         </div>
                         <div className="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm">
                           <div className="flex items-center gap-3">
-                            <div className="bg-green-100 p-2 rounded-lg">
-                              <Award size={18} className="text-green-600" />
+                            <div className="bg-[#4b37cd]/10 p-2 rounded-lg">
+                              <Award size={18} className="text-[#4b37cd]" />
                             </div>
                             <div>
                               <p className="text-sm font-medium text-gray-600">
@@ -894,16 +899,16 @@ const VettingPage = () => {
                         </div>
                         <div className="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm">
                           <div className="flex items-center gap-3">
-                            <div className="bg-purple-100 p-2 rounded-lg">
-                              <BookOpen size={18} className="text-purple-600" />
+                            <div className="bg-[#4b37cd]/10 p-2 rounded-lg">
+                              <BookOpen size={18} className="text-[#4b37cd]" />
                             </div>
                             <div className="flex-1">
                               <p className="text-sm font-medium text-gray-600 mb-2">
                                 Topic
                               </p>
-                              <div className="bg-purple-50 border border-purple-200 rounded-lg px-3 py-2">
+                              <div className="bg-[#4b37cd]/20 border border-[#4b37cd]/40 rounded-lg px-3 py-2">
                                 <p
-                                  className="text-sm font-bold text-purple-800 break-words"
+                                  className="text-sm font-bold text-[#4b37cd] break-words"
                                   title={selectedQuestion.topic}
                                 >
                                   {selectedQuestion.topic}
@@ -920,7 +925,7 @@ const VettingPage = () => {
                           <h4 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
                             <FileText
                               size={20}
-                              className="text-blue-600 flex-shrink-0"
+                              className="text-[#4b37cd] flex-shrink-0"
                             />
                             Question
                           </h4>
@@ -936,7 +941,7 @@ const VettingPage = () => {
                           <h4 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
                             <CheckCircle
                               size={20}
-                              className="text-green-600 flex-shrink-0"
+                              className="text-[#4b37cd] flex-shrink-0"
                             />
                             Answer
                           </h4>
@@ -947,25 +952,6 @@ const VettingPage = () => {
                             }}
                           />
                         </div>
-
-                        {selectedQuestion.figure && (
-                          <div className="bg-white rounded-2xl p-4 sm:p-6 border border-gray-200 shadow-sm">
-                            <h4 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-                              <Eye
-                                size={20}
-                                className="text-purple-600 flex-shrink-0"
-                              />
-                              Figure
-                            </h4>
-                            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                              <img
-                                src={`http://localhost:7000${selectedQuestion.figure}`}
-                                alt="Question Figure"
-                                className="max-w-full h-auto rounded-lg shadow-md"
-                              />
-                            </div>
-                          </div>
-                        )}
                       </div>
                     </div>
 
@@ -983,7 +969,7 @@ const VettingPage = () => {
                           <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
                             <MessageSquare
                               size={20}
-                              className="text-purple-600"
+                              className="text-[#4b37cd]"
                             />
                             Vetting Process
                           </h3>
@@ -993,7 +979,7 @@ const VettingPage = () => {
                               <p className="text-sm font-semibold text-gray-600">
                                 Course Code
                               </p>
-                              <p className="text-lg font-bold text-purple-800">
+                              <p className="text-lg font-bold text-[#4b37cd]">
                                 {courseCode}
                               </p>
                             </div>
@@ -1001,7 +987,7 @@ const VettingPage = () => {
                               <p className="text-sm font-semibold text-gray-600">
                                 Faculty ID
                               </p>
-                              <p className="text-lg font-bold text-purple-800">
+                              <p className="text-lg font-bold text-[#4b37cd]">
                                 {faculty?.faculty_id}
                               </p>
                             </div>
@@ -1011,7 +997,7 @@ const VettingPage = () => {
                           {["accepted", "rejected"].includes(
                             selectedQuestion?.status
                           ) && (
-                            <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-xl p-4 mb-6">
+                            <div className="bg-[#4b37cd]/10 border border-[#4b37cd]/30 text-[#4b37cd] rounded-xl p-4 mb-6">
                               <div className="flex items-center gap-2 mb-2">
                                 <AlertCircle size={16} />
                                 <span className="font-semibold">
@@ -1033,7 +1019,7 @@ const VettingPage = () => {
                               <label className="flex items-center gap-2 font-semibold text-gray-700 mb-3">
                                 <CheckSquare
                                   size={16}
-                                  className="text-green-600"
+                                  className="text-[#4b37cd]"
                                 />
                                 Approval Remarks
                                 <span className="text-red-600">*</span>
@@ -1047,7 +1033,7 @@ const VettingPage = () => {
                                     setValidationMsg("");
                                   }
                                 }}
-                                className="w-full p-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all duration-200 disabled:bg-gray-100"
+                                className="w-full p-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#4b37cd] focus:border-[#4b37cd] outline-none transition-all duration-200 disabled:bg-gray-100"
                                 disabled={["accepted", "rejected"].includes(
                                   selectedQuestion?.status
                                 )}
@@ -1069,7 +1055,7 @@ const VettingPage = () => {
 
                             <div>
                               <label className="flex items-center gap-2 font-semibold text-gray-700 mb-3">
-                                <XSquare size={16} className="text-red-600" />
+                                <XSquare size={16} className="text-[#4b37cd]" />
                                 Rejection Reasons
                                 <span className="text-red-600">*</span>
                               </label>
@@ -1082,7 +1068,7 @@ const VettingPage = () => {
                                     setValidationMsg("");
                                   }
                                 }}
-                                className="w-full p-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all duration-200 disabled:bg-gray-100"
+                                className="w-full p-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#4b37cd] focus:border-[#4b37cd] outline-none transition-all duration-200 disabled:bg-gray-100"
                                 disabled={["accepted", "rejected"].includes(
                                   selectedQuestion?.status
                                 )}
@@ -1103,7 +1089,7 @@ const VettingPage = () => {
                             </div>
 
                             {validationMsg && (
-                              <div className="bg-red-50 border border-red-200 text-red-800 rounded-xl p-3">
+                              <div className="bg-[#4b37cd]/10 border border-[#4b37cd]/30 text-[#4b37cd] rounded-xl p-3">
                                 <div className="flex items-center gap-2">
                                   <AlertCircle size={16} />
                                   <span className="text-sm font-semibold">
@@ -1127,7 +1113,7 @@ const VettingPage = () => {
                                 ) ||
                                 loading
                               }
-                              className="w-full px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                              className="w-full px-6 py-3 bg-[#4b37cd] hover:bg-[#3d2ba7] text-white rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                             >
                               <CheckSquare size={18} />
                               {loading ? "Processing..." : "Accept Question"}
@@ -1141,7 +1127,7 @@ const VettingPage = () => {
                                 ) ||
                                 loading
                               }
-                              className="w-full px-6 py-3 bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                              className="w-full px-6 py-3 bg-[#4b37cd]/60 hover:bg-[#4b37cd]/70 text-white rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                             >
                               <XSquare size={18} />
                               {loading ? "Processing..." : "Reject Question"}

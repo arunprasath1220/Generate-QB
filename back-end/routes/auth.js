@@ -1,76 +1,82 @@
 const express = require('express');
 const router = express.Router();
-const db = require("../db"); 
-const verifyToken = require('./jwtMiddleware');
+const db = require("../db");
 const jwt = require('jsonwebtoken');
+
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 router.post('/check-user', (req, res) => {
   const { email } = req.body;
+  if (!email) return res.status(400).json({ success: false, message: 'Email is required' });
 
-  if (!email) {
-      return res.status(400).json({ error: 'Email is required' });
-  }
-
-  const query = 'SELECT * FROM user WHERE email = ?';
+  const query = `
+    SELECT u.id, u.email, r.role AS role_name
+    FROM users u
+    LEFT JOIN role r ON u.role = r.id
+    WHERE u.email = ?
+    LIMIT 1
+  `;
   db.query(query, [email], (err, results) => {
-      if (err) return res.status(500).json({ error: 'DB error' });
+    if (err) {
+      console.error('DB error:', err);
+      return res.status(500).json({ success: false, message: 'Database error' });
+    }
+    if (!results.length) return res.status(404).json({ success: false, message: 'User not found' });
 
-      if (results.length > 0) {
-          const user = results[0];
+    const user = results[0];
+    const token = jwt.sign(
+      { id: user.id, email: user.email, role: user.role_name },
+      JWT_SECRET,
+      { expiresIn: '1h' }
+    );
 
-          const token = jwt.sign(
-              { id: user.id, email: user.email, role: user.role },
-              'your-secret-key',
-              { expiresIn: '1h' } 
-          );
-
-          return res.json({
-              exists: true,
-              id: user.id,
-              username: user.username,
-              email: user.email,
-              role: user.role,
-              course_code: user.course_code,
-              token: token 
-          });
-      } else {
-          return res.json({ exists: false });
-      }
+    return res.json({
+      success: true,
+      user: {
+        // id: user.id,
+        email: user.email,
+        role: user.role_name
+      },
+      token
+    });
   });
 });
 
 router.post('/manual-login', (req, res) => {
-    const { email, password } = req.body;
+  const { email, password } = req.body;
+  if (!email || !password) return res.status(400).json({ success: false, message: 'Email and password required' });
 
-    console.log("Login request:", email, password);
+  const query = `
+    SELECT u.id, u.email, u.password, r.role AS role_name
+    FROM users u
+    LEFT JOIN role r ON u.role = r.id
+    WHERE u.email = ? AND u.password = ?
+    LIMIT 1
+  `;
+  db.query(query, [email, password], (err, results) => {
+    if (err) {
+      console.error('DB error:', err);
+      return res.status(500).json({ success: false, message: 'Database error' });
+    }
+    if (!results.length) return res.status(401).json({ success: false, message: 'Invalid credentials' });
 
-    const query = 'SELECT * FROM user WHERE email = ? AND password = ?';
-    db.query(query, [email, password], (err, results) => {
-        if (err) {
-            console.error("MySQL error:", err);
-            return res.status(500).json({ success: false, message: 'Database error' });
-        }
+    const user = results[0];
+    const token = jwt.sign(
+      { id: user.id, email: user.email, role: user.role_name },
+      JWT_SECRET,
+      { expiresIn: '1h' }
+    );
 
-        if (results.length === 0) {
-            return res.status(401).json({ success: false, message: 'Invalid username or password' });
-        }
-
-        const user = results[0];
-
-        const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, 'your-secret-key', { expiresIn: '1h' });
-
-        return res.json({
-            success: true,
-            user: {
-                id: user.id,
-                username: user.username,
-                email: user.email,
-                role: user.role,
-                course_code: user.course_code
-            },
-            token: token 
-        });
+    return res.json({
+      success: true,
+      user: {
+        // id: user.id,
+        email: user.email,
+        role: user.role_name
+      },
+      token
     });
+  });
 });
 
 module.exports = router;

@@ -104,7 +104,7 @@ const QBHistory = () => {
       headerName: 'S.No', 
       width: 80,
       renderCell: (params) => (
-        <div className="flex items-center justify-center w-8 h-8 bg-blue-100 rounded-full text-blue-700 font-semibold text-sm">
+        <div className="flex items-center justify-center w-8 h-8 bg-purple-100 rounded-full text-purple-700 font-semibold text-sm">
           {params.value}
         </div>
       )
@@ -115,8 +115,8 @@ const QBHistory = () => {
       flex: 1,
       renderCell: (params) => (
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-            <BookOpen size={16} className="text-green-600" />
+          <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+            <BookOpen size={16} className="text-purple-600" />
           </div>
           <span className="font-semibold text-gray-800">{params.value}</span>
         </div>
@@ -141,8 +141,8 @@ const QBHistory = () => {
       flex: 1.5,
       renderCell: (params) => (
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
-            <Calendar size={16} className="text-orange-600" />
+          <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+            <Calendar size={16} className="text-purple-600" />
           </div>
           <span className="text-gray-700">{params.value}</span>
         </div>
@@ -154,8 +154,8 @@ const QBHistory = () => {
       flex: 1.5,
       renderCell: (params) => (
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center">
-            <Clock size={16} className="text-indigo-600" />
+          <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+            <Clock size={16} className="text-purple-600" />
           </div>
           <div className="flex flex-col">
             <span className="text-gray-700 text-sm font-medium">
@@ -171,7 +171,7 @@ const QBHistory = () => {
   ];
 
   return (
-    <div className="flex h-screen bg-gradient-to-br from-gray-50 to-blue-50/20 overflow-hidden">
+    <div className="flex h-screen bg-purple-50 overflow-hidden">
       {/* Sidebar */}
       <div
         className={`fixed z-40 top-0 left-0 h-full bg-white shadow-xl transform transition-transform duration-300 ease-in-out ${
@@ -197,18 +197,18 @@ const QBHistory = () => {
             {/* Left side */}
             <div className="flex items-center gap-4">
               <button
-                className="block lg:hidden p-3 bg-blue-100 rounded-xl text-blue-600 hover:bg-blue-200 transition-colors duration-200"
+                className="block lg:hidden p-3 bg-purple-100 rounded-xl text-purple-600 hover:bg-purple-200 transition-colors duration-200"
                 onClick={() => setSidebarOpen(!sidebarOpen)}
               >
                 <Menu size={20} />
               </button>
               
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-xl flex items-center justify-center shadow-lg">
+                <div className="w-12 h-12 bg-purple-600 rounded-xl flex items-center justify-center shadow-lg">
                   <History size={24} className="text-white" />
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
+                  <h1 className="text-2xl font-bold text-purple-800">
                     Question Bank History
                   </h1>
                   <p className="text-sm text-gray-500">Track all generated question papers</p>
@@ -219,7 +219,7 @@ const QBHistory = () => {
             {/* Right side */}
             <div className="flex items-center gap-3">
               <button
-                className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                className="flex items-center gap-2 px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
                 onClick={() => navigate('/generateqb')}
               >
                 <ArrowLeft size={18} />
@@ -234,8 +234,8 @@ const QBHistory = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
           <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 p-6 hover:shadow-xl transition-all duration-300">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                <FileText size={24} className="text-blue-600" />
+              <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                <FileText size={24} className="text-purple-600" />
               </div>
               <div>
                 <p className="text-sm text-gray-600 font-medium">Total Papers</p>
@@ -246,8 +246,8 @@ const QBHistory = () => {
 
           <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 p-6 hover:shadow-xl transition-all duration-300">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-                <Calendar size={24} className="text-green-600" />
+              <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                <Calendar size={24} className="text-purple-600" />
               </div>
               <div>
                 <p className="text-sm text-gray-600 font-medium">This Month</p>
@@ -280,7 +280,7 @@ const QBHistory = () => {
                   placeholder="Search by course code, subject, or exam type..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all duration-300 text-gray-800"
+                  className="w-full pl-10 pr-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 outline-none transition-all duration-300 text-gray-800"
                 />
               </div>
             </div>
@@ -301,8 +301,8 @@ const QBHistory = () => {
         <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border border-gray-200/50 p-6">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center">
-                <FileText size={16} className="text-indigo-600" />
+              <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                <FileText size={16} className="text-purple-600" />
               </div>
               <h3 className="text-lg font-semibold text-gray-800">Generation History</h3>
             </div>
@@ -389,7 +389,7 @@ const QBHistory = () => {
             {!searchTerm && (
               <button
                 onClick={() => navigate('/generateqb')}
-                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
               >
                 Generate Your First Paper
               </button>

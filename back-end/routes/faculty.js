@@ -42,8 +42,6 @@ router.post(
     if (!req.file) {
       return res.status(400).json({ error: "No file uploaded" });
     }
-
-    // Return the file path that will be stored in the database
     const figurePath = `/uploads/${req.file.filename}`;
     res.status(200).json({ figurePath });
   }
@@ -54,20 +52,25 @@ router.get("/get-course-code", verifyToken, (req, res) => {
   if (!email) return res.status(400).send("Missing email");
 
   const query = `
-      SELECT course_code
-      FROM faculty_list 
-      WHERE email = ?
-    `;
+    SELECT c.course_code
+    FROM users u
+    INNER JOIN faculty_course fc ON u.id = fc.faculty
+    INNER JOIN course c ON fc.course = c.id
+    WHERE u.email = ?
+  `;
 
   db.query(query, [email], (err, results) => {
     if (err) return res.status(500).send("Error fetching course code");
+
     if (results.length === 0)
       return res.status(404).send("No course code found");
+
     res.json({ course_code: results[0].course_code });
   });
 });
 
-router.get("/faculty-question-stats", verifyToken, (req, res) => {
+
+router.get("/faculty-question-status", verifyToken, (req, res) => {
   const courseCode = req.query.course_code;
 
   if (!courseCode) {
@@ -75,24 +78,34 @@ router.get("/faculty-question-stats", verifyToken, (req, res) => {
   }
 
   const weeklyQuery = `
-      SELECT fl.faculty_id, YEARWEEK(q.created_at, 1) AS week, COUNT(*) AS total_papers
-      FROM qb.questions AS q
-      JOIN qb.faculty_list AS fl ON q.course_code = fl.course_code
-      WHERE q.course_code = ?
+    SELECT 
+      u.faculty_id, 
+      YEARWEEK(q.created_at, 1) AS week, 
+      COUNT(*) AS total_papers
+    FROM qb.questions AS q
+    JOIN qb.course c ON q.course_code = c.course_code
+    JOIN qb.faculty_course fc ON fc.course = c.id
+    JOIN qb.users u ON fc.faculty = u.id
+    WHERE q.course_code = ?
       AND q.created_at >= NOW() - INTERVAL 7 WEEK
-      GROUP BY fl.faculty_id, YEARWEEK(q.created_at, 1)
-      ORDER BY week ASC
-    `;
+    GROUP BY u.faculty_id, YEARWEEK(q.created_at, 1)
+    ORDER BY week ASC
+  `;
 
   const monthlyQuery = `
-      SELECT fl.faculty_id, DATE_FORMAT(q.created_at, '%Y-%m') AS month, COUNT(*) AS total_papers
-      FROM qb.questions AS q
-      JOIN qb.faculty_list AS fl ON q.course_code = fl.course_code
-      WHERE q.course_code = ?
+    SELECT 
+      u.faculty_id, 
+      DATE_FORMAT(q.created_at, '%Y-%m') AS month, 
+      COUNT(*) AS total_papers
+    FROM qb.questions AS q
+    JOIN qb.course c ON q.course_code = c.course_code
+    JOIN qb.faculty_course fc ON fc.course = c.id
+    JOIN qb.users u ON fc.faculty = u.id
+    WHERE q.course_code = ?
       AND q.created_at >= NOW() - INTERVAL 6 MONTH
-      GROUP BY fl.faculty_id, DATE_FORMAT(q.created_at, '%Y-%m')
-      ORDER BY month ASC
-    `;
+    GROUP BY u.faculty_id, DATE_FORMAT(q.created_at, '%Y-%m')
+    ORDER BY month ASC
+  `;
 
   db.query(weeklyQuery, [courseCode], (err, weeklyResults) => {
     if (err) return res.status(400).json({ error: err.message });
@@ -105,12 +118,50 @@ router.get("/faculty-question-stats", verifyToken, (req, res) => {
   });
 });
 
+
 router.get("/faculty-data", verifyToken, (req, res) => {
   const { email } = req.query;
-  const query = "SELECT * FROM faculty_list WHERE email=?";
+  const query = `
+    SELECT 
+      u.faculty_id,
+      u.name AS faculty_name,
+      u.photo,
+      u.email,
+      c.course_code,
+      c.subject,
+      d.department,
+      dg.degree,
+      s.semester,
+      s.month AS semester_month,
+      fc.status
+    FROM users u
+    LEFT JOIN faculty_course fc ON u.id = fc.faculty
+    LEFT JOIN course c ON fc.course = c.id
+    LEFT JOIN department d ON fc.dept = d.id
+    LEFT JOIN degree dg ON fc.degree = dg.id
+    LEFT JOIN semester s ON fc.semester = s.id
+    WHERE u.email = ?;
+  `;
+
   db.query(query, [email], (err, results) => {
-    if (!err) res.status(200).send(results);
-    else return res.status(400).send(err);
+    if (err) {
+      return res.status(400).send(err);
+    }
+    return res.status(200).send(results);
+  });
+});
+
+
+router.get("/faculty-question-list", verifyToken, (req, res) => {
+  const { course_code } = req.query;
+  if (!course_code)
+    return res.status(400).json({ error: "Course code is required" });
+
+  const query =
+    "SELECT faculty_id,course_code,mark,remarks,question_id,question,unit,updated_at,status,topic  FROM question_status WHERE course_code = ?";
+  db.query(query, [course_code], (err, results) => {
+    if (!err) res.status(200).json(results);
+    else res.status(400).json({ error: err.message });
   });
 });
 
@@ -120,7 +171,6 @@ router.get("/get-vetting-id", verifyToken, (req, res) => {
   db.query(query, [faculty_id], (err, results) => {
     if (!err) res.status(200).send(results[0]);
     else return res.status(400).send(err);
-    console.log(results[0]);
   });
 });
 
@@ -130,18 +180,26 @@ router.get("/get-faculty-id", verifyToken, (req, res) => {
   db.query(query, [vetting_id], (err, results) => {
     if (!err) res.status(200).send(results[0]);
     else return res.status(400).send(err);
-    console.log(results[0]);
   });
 });
 router.get("/get-email", verifyToken, (req, res) => {
   const { faculty_id } = req.query;
-  const query = "SELECT email FROM faculty_list where faculty_id=?";
+  if (!faculty_id) return res.status(400).send("Missing faculty_id");
+
+  const query = `
+    SELECT u.email
+    FROM users u
+    WHERE u.faculty_id = ?
+  `;
+
   db.query(query, [faculty_id], (err, results) => {
-    if (!err) res.status(200).send(results[0]);
-    else return res.status(400).send(err);
-    console.log(results[0]);
+    if (err) return res.status(400).send(err);
+    if (results.length === 0) return res.status(404).send("No email found");
+
+    res.status(200).send(results[0]);
   });
 });
+
 
 router.get("/question-view/:id", verifyToken, (req, res) => {
   const { id } = req.params;
@@ -180,7 +238,8 @@ router.put("/question-edit/:id", verifyToken, (req, res) => {
     query,
     [unit, topic, mark, question, answer, figure || null, id],
     (err) => {
-      if (!err) res.status(200).send("Updated successfully and sent for re-vetting.");
+      if (!err)
+        res.status(200).send("Updated successfully and sent for re-vetting.");
       else res.status(400).send(err);
     }
   );
@@ -266,63 +325,60 @@ router.post("/upload", upload.single("file"), verifyToken, (req, res) => {
     }
 
     // Get max existing ID
-    db.query(
-      "SELECT MAX(id) AS maxId FROM question_status",
-      (err, result) => {
-        if (err) {
-          console.error("Error fetching max ID:", err);
-          fs.unlink(filePath, (err) => {
-            if (err) console.error("Failed to delete file on DB error:", err);
-          });
-          return res.status(500).send("Error while preparing insertion");
-        }
+    db.query("SELECT MAX(id) AS maxId FROM question_status", (err, result) => {
+      if (err) {
+        console.error("Error fetching max ID:", err);
+        fs.unlink(filePath, (err) => {
+          if (err) console.error("Failed to delete file on DB error:", err);
+        });
+        return res.status(500).send("Error while preparing insertion");
+      }
 
-        let currentId = (result[0].maxId || 0) + 1;
+      let currentId = (result[0].maxId || 0) + 1;
 
-        // Insert each row with a custom ID
-        results.forEach((row) => {
-          const query = `
+      // Insert each row with a custom ID
+      results.forEach((row) => {
+        const query = `
             INSERT INTO question_status 
             (id, unit, topic, mark, question, answer, course_code, option_a, option_b, option_c, option_d,
             faculty_id, vetting_id, competence_level, course_outcome, portion, figure, status)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')
           `;
 
-          db.query(
-            query,
-            [
-              currentId++,
-              row.unit,
-              row.topic,
-              parseInt(row.mark),
-              row.question,
-              row.answer,
-              courseCode,
-              row.option_a || null,
-              row.option_b || null,
-              row.option_c || null,
-              row.option_d || null,
-              facultyId || row.faculty_id || null,
-              vettingId || row.vetting_id || null,
-              row.competence_level || null,
-              row.course_outcome || null,
-              row.portion || null,
-              row.figure || null,
-            ],
-            (err) => {
-              if (err) console.error("Insert error:", err);
-            }
-          );
-        });
+        db.query(
+          query,
+          [
+            currentId++,
+            row.unit,
+            row.topic,
+            parseInt(row.mark),
+            row.question,
+            row.answer,
+            courseCode,
+            row.option_a || null,
+            row.option_b || null,
+            row.option_c || null,
+            row.option_d || null,
+            facultyId || row.faculty_id || null,
+            vettingId || row.vetting_id || null,
+            row.competence_level || null,
+            row.course_outcome || null,
+            row.portion || null,
+            row.figure || null,
+          ],
+          (err) => {
+            if (err) console.error("Insert error:", err);
+          }
+        );
+      });
 
-        // Delete uploaded file after processing
-        fs.unlink(filePath, (err) => {
-          if (err) console.error("Failed to delete uploaded file:", err);
-        });
+      // Delete uploaded file after processing
+      fs.unlink(filePath, (err) => {
+        if (err) console.error("Failed to delete uploaded file:", err);
+      });
 
-        res.send("File uploaded and questions inserted successfully.");
-      }
-    );
+      res.send("File uploaded and questions inserted successfully.");
+    });
   } catch (error) {
     console.error("Error processing Excel file:", error);
     fs.unlink(filePath, (err) => {
@@ -334,16 +390,20 @@ router.post("/upload", upload.single("file"), verifyToken, (req, res) => {
 
 router.get("/faculty-task-progress/:faculty_id", verifyToken, (req, res) => {
   const facultyId = req.params.faculty_id;
+
   const query = `
     SELECT 
-      fl.subject_name,
+      c.subject AS subject_name,
       t.unit,
       t.m1, t.m2, t.m3, t.m4, t.m5, t.m6, t.m13, t.m15,
       t.m1_added, t.m2_added, t.m3_added, t.m4_added, t.m5_added, t.m6_added, t.m13_added, t.m15_added,
       t.due_date
     FROM task t
-    JOIN faculty_list fl ON t.faculty_id = fl.faculty_id
-    WHERE t.faculty_id = ? AND t.due_date >= CURDATE()
+    JOIN users u ON t.faculty_id = u.faculty_id
+    JOIN faculty_course fc ON fc.faculty = u.id
+    JOIN course c ON c.id = fc.course
+    WHERE t.faculty_id = ?
+      AND t.due_date >= CURDATE()
   `;
 
   db.query(query, [facultyId], (err, results) => {
@@ -389,10 +449,10 @@ router.get("/faculty-id", verifyToken, (req, res) => {
   if (!email) return res.status(400).send("Missing email");
 
   const query = `
-      SELECT faculty_id 
-      FROM faculty_list 
-      WHERE email = ?
-    `;
+    SELECT u.faculty_id
+    FROM users u
+    WHERE u.email = ?
+  `;
 
   db.query(query, [email], (err, results) => {
     if (err) return res.status(500).send("Error fetching faculty-id");
@@ -401,6 +461,7 @@ router.get("/faculty-id", verifyToken, (req, res) => {
     res.json({ faculty_id: results[0].faculty_id });
   });
 });
+
 
 router.post("/add-question", verifyToken, (req, res) => {
   let {
@@ -532,7 +593,13 @@ router.put("/review-question/:question_id", verifyToken, (req, res) => {
     const question = statusResults[0];
     const dbVettingId = question.vetting_id;
 
-    const vettingQuery = `SELECT faculty_id FROM faculty_list WHERE email = ?`;
+    // ✅ Updated: get faculty_id directly from users
+    const vettingQuery = `
+      SELECT u.faculty_id
+      FROM users u
+      WHERE u.email = ?
+    `;
+
     db.query(vettingQuery, [loginVettingEmail], (err2, vettingResults) => {
       if (err2) return res.status(500).send("Error verifying reviewer");
 
@@ -598,9 +665,8 @@ router.put("/review-question/:question_id", verifyToken, (req, res) => {
   });
 });
 
-router.post("/increment-question-count", verifyToken, (req, res) => {
-  console.log("Received request body:", req.body);
 
+router.post("/increment-question-count", verifyToken, (req, res) => {
   const { faculty_id, unit, mark } = req.body;
 
   if (!faculty_id || !unit || !mark) {
@@ -643,7 +709,7 @@ router.post("/increment-question-count", verifyToken, (req, res) => {
       message: "Count incremented",
       faculty_id,
       unit,
-      mark
+      mark,
     });
   });
 });

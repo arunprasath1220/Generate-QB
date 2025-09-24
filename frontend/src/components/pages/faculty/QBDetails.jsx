@@ -73,7 +73,7 @@ const QBDetails = () => {
       setLoading(true);
       axios
         .get(
-          `http://localhost:7000/api/admin/faculty-question-list?course_code=${courseCode}`,
+          `http://localhost:7000/api/faculty/faculty-question-list?course_code=${courseCode}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -151,13 +151,13 @@ const QBDetails = () => {
     const getStatusColor = () => {
       switch (status) {
         case "accepted":
-          return "bg-gradient-to-r from-green-500 to-emerald-500 text-white";
+          return "bg-green-600 text-white";
         case "pending":
-          return "bg-gradient-to-r from-yellow-500 to-orange-500 text-white";
+          return "bg-amber-500 text-white";
         case "rejected":
-          return "bg-gradient-to-r from-red-500 to-pink-500 text-white";
+          return "bg-red-600 text-white";
         default:
-          return "bg-gradient-to-r from-gray-500 to-gray-600 text-white";
+          return "bg-gray-600 text-white";
       }
     };
 
@@ -176,7 +176,7 @@ const QBDetails = () => {
 
     return (
       <div
-        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold shadow-lg ${getStatusColor()}`}
+        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold shadow-sm ${getStatusColor()}`}
       >
         {getPriorityIcon()}
         <span className="capitalize">{status}</span>
@@ -192,8 +192,8 @@ const QBDetails = () => {
       flex: 0.9,
       renderCell: (params) => (
         <div className="flex items-center gap-1">
-          <div className="bg-blue-100 p-1.5 rounded-lg">
-            <User size={14} className="text-blue-600" />
+          <div className="bg-[#4b37cd]/10 p-1.5 rounded-lg">
+            <User size={14} className="text-[#4b37cd]" />
           </div>
           <span className="font-medium text-gray-800">{params.value}</span>
         </div>
@@ -205,10 +205,10 @@ const QBDetails = () => {
       flex: 1,
       renderCell: (params) => (
         <div className="flex items-center gap-1">
-          <div className="bg-purple-100 p-1.5 rounded-lg">
-            <BookOpen size={14} className="text-purple-600" />
+          <div className="bg-[#4b37cd]/10 p-1.5 rounded-lg">
+            <BookOpen size={14} className="text-[#4b37cd]" />
           </div>
-          <span className="font-semibold text-purple-800 px-0 py-1 rounded">
+          <span className="font-semibold text-[#4b37cd] px-0 py-1 rounded">
             {params.value}
           </span>
         </div>
@@ -220,7 +220,7 @@ const QBDetails = () => {
       flex: 0.5,
       renderCell: (params) => (
         <div className="flex items-center gap-0">
-          <span className="font-bold text-indigo-800 px-0 py-1 rounded">
+          <span className="font-bold text-[#4b37cd] px-0 py-1 rounded">
             {params.value}
           </span>
         </div>
@@ -232,7 +232,7 @@ const QBDetails = () => {
       flex: 0.5,
       renderCell: (params) => (
         <div className="flex items-center gap-1">
-          <span className="font-bold text-emerald-800 px-0 py-1 rounded">
+          <span className="font-bold text-green-700 px-0 py-1 rounded">
             {params.value}M
           </span>
         </div>
@@ -244,8 +244,8 @@ const QBDetails = () => {
       flex: 1.5,
       renderCell: (params) => (
         <div className="flex items-center gap-2">
-          <div className="bg-orange-100 p-1.5 rounded-lg">
-            <FileText size={14} className="text-orange-600" />
+          <div className="bg-[#4b37cd]/10 p-1.5 rounded-lg">
+            <FileText size={14} className="text-[#4b37cd]" />
           </div>
           <span
             className="text-gray-700 font-medium truncate"
@@ -351,9 +351,9 @@ const QBDetails = () => {
         link.setAttribute("href", url);
         link.setAttribute(
           "download",
-          `question_bank_${courseCode || "export"}_${new Date()
-            .toISOString()
-            .split("T")[0]}.csv`
+          `question_bank_${courseCode || "export"}_${
+            new Date().toISOString().split("T")[0]
+          }.csv`
         );
         link.style.visibility = "hidden";
         document.body.appendChild(link);
@@ -370,9 +370,9 @@ const QBDetails = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40">
+    <div className="flex min-h-screen bg-gray-50">
       {/* Sidebar */}
-      <div className="hidden lg:flex flex-col fixed top-0 left-0 w-64 h-screen bg-white/80 backdrop-blur-xl shadow-2xl z-50 border-r border-gray-200/50">
+      <div className="hidden lg:flex flex-col fixed top-0 left-0 w-64 h-screen bg-white shadow-xl z-50 border-r border-gray-200">
         <FacultyNavbar />
       </div>
 
@@ -386,7 +386,6 @@ const QBDetails = () => {
             top: 0,
             height: "100vh",
             background: "rgba(255, 255, 255, 0.95)",
-            backdropFilter: "blur(20px)",
           },
         }}
       >
@@ -400,24 +399,24 @@ const QBDetails = () => {
       >
         {/* Enhanced Header Section */}
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 mb-8 overflow-hidden">
-          <div className="relative bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 px-6 py-8">
+          <div className="relative bg-[#4b37cd] px-6 py-8">
             <div className="flex flex-wrap justify-between items-center">
               <div className="flex items-center gap-4">
                 <button
-                  className="block lg:hidden text-white hover:bg-white/20 p-2 rounded-xl transition-all duration-300 hover:scale-110"
+                  className="block lg:hidden text-white hover:bg-white/20 p-2 rounded-xl transition-all duration-300"
                   onClick={() => setOpenSidebar(!openSidebar)}
                 >
                   <Menu size={24} />
                 </button>
                 <div className="flex items-center gap-3">
-                  <div className="bg-white/20 p-3 rounded-xl backdrop-blur-sm">
+                  <div className="bg-white/20 p-3 rounded-xl">
                     <BarChart3 size={28} className="text-white" />
                   </div>
                   <div>
                     <h1 className="text-2xl sm:text-3xl font-bold text-white">
                       Question Bank Details
                     </h1>
-                    <p className="text-blue-100 mt-1">
+                    <p className="text-white/80 mt-1">
                       View and manage your accepted questions
                     </p>
                   </div>
@@ -430,19 +429,19 @@ const QBDetails = () => {
           </div>
 
           {/* Stats Summary */}
-          <div className="relative px-8 py-6 bg-gradient-to-b from-gray-50/80 to-white/80 backdrop-blur-sm">
+          <div className="relative px-8 py-6 bg-gray-50/50">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <Grow in timeout={600}>
                 <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
                   <div className="flex items-center gap-3">
-                    <div className="bg-gradient-to-br from-green-500 to-emerald-600 p-3 rounded-xl">
-                      <CheckCircle size={20} className="text-white" />
+                    <div className="bg-green-100 p-3 rounded-xl">
+                      <CheckCircle size={20} className="text-green-600" />
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-gray-600">
                         Total Questions
                       </p>
-                      <p className="text-2xl font-bold text-gray-900">
+                      <p className="text-2xl font-bold text-[#4b37cd]">
                         {questionRows.length}
                       </p>
                     </div>
@@ -452,14 +451,14 @@ const QBDetails = () => {
               <Grow in timeout={800}>
                 <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
                   <div className="flex items-center gap-3">
-                    <div className="bg-gradient-to-br from-blue-500 to-indigo-600 p-3 rounded-xl">
-                      <Star size={20} className="text-white" />
+                    <div className="bg-[#4b37cd]/10 p-3 rounded-xl">
+                      <Star size={20} className="text-[#4b37cd]" />
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-gray-600">
                         Course Code
                       </p>
-                      <p className="text-xl font-bold text-gray-900">
+                      <p className="text-xl font-bold text-[#4b37cd]">
                         {courseCode || "Loading..."}
                       </p>
                     </div>
@@ -469,16 +468,17 @@ const QBDetails = () => {
               <Grow in timeout={1000}>
                 <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
                   <div className="flex items-center gap-3">
-                    <div className="bg-gradient-to-br from-purple-500 to-pink-600 p-3 rounded-xl">
-                      <TrendingUp size={20} className="text-white" />
+                    <div className="bg-[#4b37cd]/10 p-3 rounded-xl">
+                      <TrendingUp size={20} className="text-[#4b37cd]" />
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-gray-600">
                         Recent Questions
                       </p>
-                      <p className="text-2xl font-bold text-gray-900">
+                      <p className="text-2xl font-bold text-[#4b37cd]">
                         {
-                          questionRows.filter((q) => q.priority === "recent").length
+                          questionRows.filter((q) => q.priority === "recent")
+                            .length
                         }
                       </p>
                     </div>
@@ -490,67 +490,17 @@ const QBDetails = () => {
         </div>
 
         {/* Enhanced Filters Section */}
-        <Fade in timeout={1000}>
-          <div className="bg-white/70 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 mb-8 p-6">
-            <div className="flex flex-wrap gap-4 items-center">
-              <div className="flex items-center gap-2">
-                <Search size={20} className="text-gray-400" />
-                <span className="font-semibold text-gray-700">Filters:</span>
-              </div>
-              <div className="relative min-w-[250px]">
-                <input
-                  type="text"
-                  placeholder="Search questions, topics, or remarks..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full px-4 py-2 pl-10 bg-gray-50 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200"
-                />
-                <Search
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                  size={16}
-                />
-              </div>
-              <div className="relative min-w-[150px]">
-                <select
-                  value={filterUnit}
-                  onChange={(e) => setFilterUnit(e.target.value)}
-                  className="w-full px-4 py-2 pl-10 bg-gray-50 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none appearance-none transition-all duration-200"
-                >
-                  <option value="">All Units</option>
-                  {availableUnits.map((unit) => (
-                    <option key={unit} value={unit}>
-                      {unit}
-                    </option>
-                  ))}
-                </select>
-                <Filter
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                  size={16}
-                />
-              </div>
-              {(searchTerm || filterUnit) && (
-                <button
-                  onClick={() => {
-                    setSearchTerm("");
-                    setFilterUnit("");
-                  }}
-                  className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl transition-colors duration-200 flex items-center gap-2"
-                >
-                  <X size={16} />
-                  Clear
-                </button>
-              )}
-            </div>
-          </div>
-        </Fade>
+        {/* <Fade in timeout={1000}>
+          <div className="bg-white/70 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 mb-8 p-6"></div>
+        </Fade> */}
 
         {/* Enhanced Data Table */}
         <Fade in timeout={1200}>
-          <div className="bg-white/70 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-200/50 overflow-hidden">
-            <div className="bg-gradient-to-r from-indigo-500/10 via-blue-500/10 to-purple-500/10 px-8 py-6 border-b border-gray-200/50">
+          <div className="bg-white rounded-3xl shadow-lg border border-gray-200 overflow-hidden">
+            <div className="bg-[#4b37cd]/5 px-8 py-6 border-b border-gray-200">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="bg-gradient-to-br from-blue-500 to-indigo-600 p-3 rounded-2xl shadow-lg">
+                  <div className="bg-[#4b37cd] p-3 rounded-2xl shadow-sm">
                     <FileText size={24} className="text-white" />
                   </div>
                   <div>
@@ -563,9 +513,63 @@ const QBDetails = () => {
                     </p>
                   </div>
                 </div>
+                <div className="flex items-center gap-2 px-4 py-2 bg-[#4b37cd]/10 hover:bg-[#4b37cd]/20 text-[#4b37cd] rounded-xl transition-colors duration-200">
+                  <div className="flex flex-wrap gap-4 items-center">
+                    <div className="flex items-center gap-2">
+                      <Search size={20} className="text-gray-400" />
+                      <span className="font-semibold text-gray-700">
+                        Filters:
+                      </span>
+                    </div>
+                    <div className="relative min-w-[250px]">
+                      <input
+                        type="text"
+                        placeholder="Search questions, topics, or remarks..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full px-4 py-2 pl-10 bg-gray-50 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#4b37cd] focus:border-[#4b37cd] outline-none transition-all duration-200"
+                      />
+                      <Search
+                        className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                        size={16}
+                      />
+                    </div>
+                    <div className="relative min-w-[150px]">
+                      <select
+                        value={filterUnit}
+                        onChange={(e) => setFilterUnit(e.target.value)}
+                        className="w-full px-4 py-2 pl-10 bg-gray-50 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#4b37cd] focus:border-[#4b37cd] outline-none appearance-none transition-all duration-200"
+                      >
+                        <option value="">All Units</option>
+                        {availableUnits.map((unit) => (
+                          <option key={unit} value={unit}>
+                            {unit}
+                          </option>
+                        ))}
+                      </select>
+                      <Filter
+                        className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                        size={16}
+                      />
+                    </div>
+                    {(searchTerm || filterUnit) && (
+                      <button
+                        onClick={() => {
+                          setSearchTerm("");
+                          setFilterUnit("");
+                        }}
+                        className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl transition-colors duration-200 flex items-center gap-2"
+                      >
+                        <X size={16} />
+                        Clear
+                      </button>
+                    )}
+                  </div>
+                </div>
+
                 <button
                   onClick={handleExport}
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-600 rounded-xl transition-colors duration-200"
+                  className="flex items-center gap-2 px-4 py-2 bg-[#4b37cd]/10 hover:bg-[#4b37cd]/20 text-[#4b37cd] rounded-xl transition-colors duration-200"
                 >
                   <Download size={16} />
                   Export
@@ -581,8 +585,7 @@ const QBDetails = () => {
                   borderRadius: 3,
                   border: "1px solid rgba(229, 231, 235, 0.5)",
                   boxShadow: "none",
-                  background: "rgba(255, 255, 255, 0.8)",
-                  backdropFilter: "blur(10px)",
+                  background: "rgba(255, 255, 255, 0.95)",
                 }}
               >
                 <DataGrid
@@ -679,17 +682,17 @@ const QBDetails = () => {
                 }`}
               >
                 {/* Enhanced Modal Header */}
-                <div className="bg-gradient-to-r from-blue-600 to-indigo-700 px-8 py-6 border-b border-gray-200">
+                <div className="bg-[#4b37cd] px-8 py-6 border-b border-gray-200">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                      <div className="bg-white/20 p-3 rounded-2xl backdrop-blur-sm">
+                      <div className="bg-white/20 p-3 rounded-2xl">
                         <Eye size={24} className="text-white" />
                       </div>
                       <div>
                         <h2 className="text-2xl font-bold text-white">
                           Question Details
                         </h2>
-                        <p className="text-blue-100 mt-1">
+                        <p className="text-white/80 mt-1">
                           {selectedQuestion.unit} - {selectedQuestion.mark}M
                           Question
                         </p>
@@ -826,7 +829,7 @@ const QBDetails = () => {
                     <div className="space-y-6">
                       <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
                         <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-                          <FileText size={20} className="text-blue-600" />
+                          <FileText size={20} className="text-[#4b37cd]" />
                           Question
                         </h3>
                         <div
@@ -849,22 +852,6 @@ const QBDetails = () => {
                           }}
                         />
                       </div>
-
-                      {selectedQuestion.figure && (
-                        <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
-                          <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-                            <Eye size={20} className="text-purple-600" />
-                            Figure
-                          </h3>
-                          <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                            <img
-                              src={`http://localhost:7000${selectedQuestion.figure}`}
-                              alt="Question Figure"
-                              className="max-w-full h-auto rounded-lg shadow-md"
-                            />
-                          </div>
-                        </div>
-                      )}
 
                       <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
                         <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">

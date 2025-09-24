@@ -50,7 +50,7 @@ const StyledFormControl = styled(FormControl)(({ theme }) => ({
     backgroundColor: 'rgba(255, 255, 255, 0.9)'
   },
   '& .MuiInputLabel-root.Mui-focused': {
-    color: '#3b82f6',
+    color: '#9333ea',
     fontWeight: 600,
   },
   '& .MuiSelect-select': {
@@ -66,16 +66,16 @@ const UnitFormControl = styled(FormControl)(({ theme }) => ({
   '& .MuiOutlinedInput-root': {
     borderRadius: '0.75rem',
     transition: 'all 0.3s ease',
-    backgroundColor: 'rgba(219, 234, 254, 0.5)',
+    backgroundColor: 'rgba(250, 245, 255, 0.5)',
   },
   '& .MuiInputLabel-root.Mui-focused': {
-    color: '#1d4ed8',
+    color: '#7c3aed',
     fontWeight: 600,
   },
   '& .MuiSelect-select': {
     padding: '1rem',
     fontWeight: 600,
-    color: '#1e40af',
+    color: '#7c3aed',
   }
 }));
 
@@ -101,16 +101,20 @@ const GiveTaskForm = () => {
   // Fetch UG departments on mount
   useEffect(() => {
     axios
-      .get("http://localhost:7000/api/admin/departments?degree=UG")
+      .get("http://localhost:7000/api/admin/departments?degree=UG", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
       .then(res => setDepartments(res.data))
       .catch(() => setDepartments([]));
-  }, []);
+  }, [token]);
 
   // Fetch faculty when selected departments or program changes
   useEffect(() => {
     if (selectedDepts.length > 0 && program) {
       axios
-        .get(`http://localhost:7000/api/admin/faculty-list-by-dept?dept=${selectedDepts.join(',')}&degree=${program}`)
+        .get(`http://localhost:7000/api/admin/faculty-list-by-dept?dept=${selectedDepts.join(',')}&degree=${program}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
         .then(res => setFacultyList(res.data))
         .catch(() => setFacultyList([]));
     } else {
@@ -134,7 +138,9 @@ const GiveTaskForm = () => {
     ]);
     if (value) {
       try {
-        const res = await axios.get(`http://localhost:7000/api/admin/departments?degree=${value}`);
+        const res = await axios.get(`http://localhost:7000/api/admin/departments?degree=${value}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         setDepartments(res.data);
       } catch {
         setDepartments([]);
@@ -299,7 +305,7 @@ const GiveTaskForm = () => {
   const stats = getStats();
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/20 to-indigo-50/30">
+    <div className="flex min-h-screen bg-white">
       {/* Sidebar */}
       <div className="hidden lg:flex flex-col fixed top-0 left-0 w-64 h-screen bg-white shadow-xl z-50 border-r border-gray-200">
         <AdminNavbar />
@@ -324,7 +330,7 @@ const GiveTaskForm = () => {
       <div className="flex-1 px-6 pt-6 pb-10 lg:ml-64 overflow-y-auto" style={{ maxHeight: "100vh" }}>
         {/* Header Section */}
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 mb-8 overflow-hidden">
-          <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 px-6 py-8">
+          <div className="bg-purple-600 px-6 py-8">
             <div className="flex flex-wrap justify-between items-center">
               <div className="flex items-center gap-4">
                 <button
@@ -341,7 +347,7 @@ const GiveTaskForm = () => {
                     <h1 className="text-2xl sm:text-3xl font-bold text-white">
                       Task Assignment
                     </h1>
-                    <p className="text-blue-100 mt-1">
+                    <p className="text-purple-100 mt-1">
                       Create and distribute question paper tasks to faculty members
                     </p>
                   </div>
@@ -362,8 +368,8 @@ const GiveTaskForm = () => {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
                 <div className="flex items-center gap-4">
-                  <div className="bg-blue-100 p-3 rounded-lg">
-                    <BookOpen size={24} className="text-blue-600" />
+                  <div className="bg-purple-100 p-3 rounded-lg">
+                    <BookOpen size={24} className="text-purple-600" />
                   </div>
                   <div>
                     <p className="text-gray-600 text-sm font-medium">Units Configured</p>
@@ -373,8 +379,8 @@ const GiveTaskForm = () => {
               </div>
               <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
                 <div className="flex items-center gap-4">
-                  <div className="bg-green-100 p-3 rounded-lg">
-                    <Award size={24} className="text-green-600" />
+                  <div className="bg-purple-100 p-3 rounded-lg">
+                    <Award size={24} className="text-purple-600" />
                   </div>
                   <div>
                     <p className="text-gray-600 text-sm font-medium">Total Marks</p>
@@ -395,8 +401,8 @@ const GiveTaskForm = () => {
               </div>
               <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
                 <div className="flex items-center gap-4">
-                  <div className="bg-orange-100 p-3 rounded-lg">
-                    <UserCheck size={24} className="text-orange-600" />
+                  <div className="bg-purple-100 p-3 rounded-lg">
+                    <UserCheck size={24} className="text-purple-600" />
                   </div>
                   <div>
                     <p className="text-gray-600 text-sm font-medium">Faculty Selected</p>
@@ -411,9 +417,9 @@ const GiveTaskForm = () => {
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
           {/* Left Form (Task Details) */}
           <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-            <div className="bg-gradient-to-r from-indigo-50 to-blue-50 px-6 py-4 border-b border-gray-200">
+            <div className="bg-gradient-to-r from-purple-50 to-purple-50 px-6 py-4 border-b border-gray-200">
               <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-                <Clipboard size={20} className="text-blue-600" />
+                <Clipboard size={20} className="text-purple-600" />
                 Task Configuration
               </h3>
             </div>
@@ -423,7 +429,7 @@ const GiveTaskForm = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                    <FileText size={16} className="text-blue-600" />
+                    <FileText size={16} className="text-purple-600" />
                     Degree Program
                   </label>
                   <StyledFormControl>
@@ -438,16 +444,16 @@ const GiveTaskForm = () => {
                     >
                       <MenuItem value="UG">
                         <div className="flex items-center gap-2">
-                          <div className="bg-blue-100 p-1 rounded">
-                            <BookOpen size={14} className="text-blue-600" />
+                          <div className="bg-purple-100 p-1 rounded">
+                            <BookOpen size={14} className="text-purple-600" />
                           </div>
                           Undergraduate (UG)
                         </div>
                       </MenuItem>
                       <MenuItem value="PG">
                         <div className="flex items-center gap-2">
-                          <div className="bg-green-100 p-1 rounded">
-                            <Award size={14} className="text-green-600" />
+                          <div className="bg-purple-100 p-1 rounded">
+                            <Award size={14} className="text-purple-600" />
                           </div>
                           Postgraduate (PG)
                         </div>
@@ -458,7 +464,7 @@ const GiveTaskForm = () => {
                 
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                    <Clock size={16} className="text-orange-600" />
+                    <Clock size={16} className="text-purple-600" />
                     Due Date
                   </label>
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -474,16 +480,16 @@ const GiveTaskForm = () => {
                           bgcolor: 'rgba(255, 255, 255, 0.9)',
                           border: '2px solid #e5e7eb',
                           '&:hover': {
-                            borderColor: '#3b82f6',
-                            boxShadow: '0 0 0 3px rgba(59, 130, 246, 0.1)',
+                            borderColor: '#9333ea',
+                            boxShadow: '0 0 0 3px rgba(147, 51, 234, 0.1)',
                           },
                           '&.Mui-focused': {
-                            borderColor: '#3b82f6',
-                            boxShadow: '0 0 0 3px rgba(59, 130, 246, 0.2)',
+                            borderColor: '#9333ea',
+                            boxShadow: '0 0 0 3px rgba(147, 51, 234, 0.2)',
                           }
                         },
                         '& .MuiInputLabel-root.Mui-focused': {
-                          color: '#3b82f6',
+                          color: '#9333ea',
                           fontWeight: 600,
                         }
                       }}
@@ -503,20 +509,24 @@ const GiveTaskForm = () => {
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h4 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-                    <TrendingUp size={20} className="text-green-600" />
+                    <TrendingUp size={20} className="text-purple-600" />
                     Unit-wise Mark Distribution
                   </h4>
                   <Chip 
                     label={`${marksToShow.length} Mark Types`} 
                     size="small" 
-                    color="primary" 
                     variant="outlined"
+                    sx={{
+                      borderColor: '#9333ea',
+                      color: '#9333ea',
+                      fontWeight: 600,
+                    }}
                   />
                 </div>
                 
                 <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
                   {unitAllotments.map((allotment, index) => (
-                    <div key={index} className="p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border-2 border-blue-100 relative group transition-all duration-300 hover:shadow-md">
+                    <div key={index} className="p-6 bg-gradient-to-r from-purple-50 to-purple-50 rounded-xl border-2 border-purple-100 relative group transition-all duration-300 hover:shadow-md">
                       {unitAllotments.length > 1 && (
                         <button
                           type="button"
@@ -541,8 +551,8 @@ const GiveTaskForm = () => {
                             {["Unit 1", "Unit 2", "Unit 3", "Unit 4", "Unit 5"].map(u => (
                               <MenuItem key={u} value={u}>
                                 <div className="flex items-center gap-2">
-                                  <div className="bg-indigo-100 p-1 rounded">
-                                    <BookOpen size={14} className="text-indigo-600" />
+                                  <div className="bg-purple-100 p-1 rounded">
+                                    <BookOpen size={14} className="text-purple-600" />
                                   </div>
                                   {u}
                                 </div>
@@ -556,7 +566,7 @@ const GiveTaskForm = () => {
                         {marksToShow.map(mark => (
                           <div key={mark} className="space-y-1">
                             <label className="text-sm text-gray-700 font-semibold flex items-center gap-1">
-                              <Award size={12} className="text-yellow-600" />
+                              <Award size={12} className="text-purple-600" />
                               {`${mark.slice(1)}-Mark`}
                             </label>
                             <input 
@@ -565,7 +575,7 @@ const GiveTaskForm = () => {
                               max="100"
                               value={allotment[mark]}
                               onChange={(e) => handleAllotmentChange(index, mark, e.target.value)}
-                              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-300 bg-white hover:border-blue-300" 
+                              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all duration-300 bg-white hover:border-purple-300" 
                               placeholder="0"
                             />
                           </div>
@@ -579,7 +589,7 @@ const GiveTaskForm = () => {
                   <button
                     type="button"
                     onClick={addUnit}
-                    className="w-full flex items-center justify-center gap-3 py-4 border-2 border-dashed border-blue-300 rounded-xl text-blue-600 font-semibold hover:bg-blue-50 hover:border-blue-500 transition-all duration-300 transform hover:scale-105"
+                    className="w-full flex items-center justify-center gap-3 py-4 border-2 border-dashed border-purple-300 rounded-xl text-purple-600 font-semibold hover:bg-purple-50 hover:border-purple-500 transition-all duration-300 transform hover:scale-105"
                   >
                     <PlusCircle size={24} />
                     Add Another Unit
@@ -591,7 +601,7 @@ const GiveTaskForm = () => {
               <div className="pt-4">
                 <button 
                   type="submit" 
-                  className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold py-4 px-6 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 active:translate-y-0 focus:outline-none focus:ring-4 focus:ring-blue-300 flex items-center justify-center gap-3"
+                  className="w-full bg-gradient-to-r from-purple-600 to-purple-600 text-white font-bold py-4 px-6 rounded-xl hover:from-purple-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 active:translate-y-0 focus:outline-none focus:ring-4 focus:ring-purple-300 flex items-center justify-center gap-3"
                 >
                   <Target size={20} />
                   Assign Tasks to Faculty
@@ -603,9 +613,9 @@ const GiveTaskForm = () => {
 
           {/* Right Form (Faculty Selection) */}
           <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-            <div className="bg-gradient-to-r from-green-50 to-emerald-50 px-6 py-4 border-b border-gray-200">
+            <div className="bg-gradient-to-r from-purple-50 to-purple-50 px-6 py-4 border-b border-gray-200">
               <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-                <Users size={20} className="text-green-600" />
+                <Users size={20} className="text-purple-600" />
                 Faculty Selection
               </h3>
             </div>
@@ -677,11 +687,11 @@ const GiveTaskForm = () => {
               {/* Faculty Selection */}
               <div className="space-y-3">
                 <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                  <UserCheck size={16} className="text-blue-600" />
+                  <UserCheck size={16} className="text-purple-600" />
                   Faculty Members
                 </label>
 
-                <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-200">
+                <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg border border-purple-200">
                   <div className="flex items-center gap-2">
                     <input
                       type="checkbox"
@@ -689,18 +699,22 @@ const GiveTaskForm = () => {
                       checked={facultyList.length > 0 && selectedFacultyIds.length === facultyList.length}
                       onChange={handleSelectAllFaculty}
                       disabled={facultyList.length === 0}
-                      className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 disabled:bg-gray-200"
+                      className="h-4 w-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500 disabled:bg-gray-200"
                     />
-                    <label htmlFor="selectAllFaculty" className="text-sm font-semibold text-blue-800 cursor-pointer flex items-center gap-1">
-                      <CheckSquare size={16} className="text-blue-600" />
+                    <label htmlFor="selectAllFaculty" className="text-sm font-semibold text-purple-800 cursor-pointer flex items-center gap-1">
+                      <CheckSquare size={16} className="text-purple-600" />
                       Select All Faculty
                     </label>
                   </div>
                   <Chip 
                     label={`${selectedFacultyIds.length} selected`} 
                     size="small" 
-                    color="primary" 
                     variant="filled"
+                    sx={{
+                      backgroundColor: 'rgb(156, 39, 176)',
+                      color: 'white',
+                      fontWeight: 600,
+                    }}
                   />
                 </div>
 
@@ -724,20 +738,20 @@ const GiveTaskForm = () => {
                           key={fac.faculty_id} 
                           className={`flex items-center space-x-3 cursor-pointer p-3 rounded-lg transition-all duration-200 ${
                             selectedFacultyIds.includes(String(fac.faculty_id)) 
-                              ? 'bg-blue-100 border-2 border-blue-300 shadow-sm' 
-                              : 'hover:bg-blue-50 border border-transparent'
+                              ? 'bg-purple-100 border-2 border-purple-300 shadow-sm' 
+                              : 'hover:bg-purple-50 border border-transparent'
                           }`}
                         >
                           <input
                             type="checkbox"
                             checked={selectedFacultyIds.includes(String(fac.faculty_id))}
                             onChange={() => handleFacultyToggle(String(fac.faculty_id))}
-                            className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                            className="h-4 w-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
                           />
                           <div className="flex-1">
                             <div className="flex items-center gap-2">
-                              <div className="bg-blue-100 p-1 rounded">
-                                <Users size={12} className="text-blue-600" />
+                              <div className="bg-purple-100 p-1 rounded">
+                                <Users size={12} className="text-purple-600" />
                               </div>
                               <span className="text-sm font-semibold text-gray-800">{fac.faculty_name}</span>
                             </div>

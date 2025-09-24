@@ -53,9 +53,9 @@ const FacultyNavbar = () => {
   };
 
   return (
-    <nav className="w-64 h-screen fixed bg-gradient-to-b from-white to-gray-50/50 shadow-xl flex flex-col border-r border-gray-200">
+    <nav className="w-64 h-screen fixed bg-white shadow-xl flex flex-col border-r border-gray-200">
       {/* Header Section */}
-      <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-purple-50 to-indigo-50">
+      <div className="p-6 border-b border-gray-200 bg-[#4b37cd]/10">
         <div className="flex flex-col items-center">
           <div className="w-20 h-20 bg-white rounded-2xl shadow-md p-2 mb-3 border border-gray-200">
             <img 
@@ -86,22 +86,22 @@ const FacultyNavbar = () => {
                     to={item.to}
                     className={`group relative flex items-center px-3 py-3 rounded-xl transition-all duration-300 ${
                       isActive 
-                        ? 'bg-gradient-to-r from-purple-600 to-indigo-700 text-white shadow-lg transform scale-105' 
-                        : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700 hover:shadow-md hover:transform hover:scale-105'
+                        ? 'bg-[#4b37cd] text-white shadow-lg transform scale-105' 
+                        : 'text-gray-700 hover:bg-[#4b37cd]/10 hover:text-[#4b37cd] hover:shadow-md hover:transform hover:scale-105'
                     }`}
                   >
                     {/* Active indicator */}
                     {isActive && (
-                      <div className="absolute -left-2 top-1/2 transform -translate-y-1/2 w-1 h-8 bg-purple-800 rounded-r-full"></div>
+                      <div className="absolute -left-2 top-1/2 transform -translate-y-1/2 w-1 h-8 bg-[#4b37cd] rounded-r-full"></div>
                     )}
                     
                     {/* Icon */}
                     <div className={`flex-shrink-0 p-2 rounded-lg transition-colors duration-200 ${
                       isActive 
                         ? 'bg-white/20' 
-                        : 'bg-gray-100 group-hover:bg-purple-100'
+                        : 'bg-gray-100 group-hover:bg-[#4b37cd]/20'
                     }`}>
-                      <div className={isActive ? 'text-white' : 'text-gray-600 group-hover:text-purple-600'}>
+                      <div className={isActive ? 'text-white' : 'text-gray-600 group-hover:text-[#4b37cd]'}>
                         {item.icon}
                       </div>
                     </div>
@@ -111,12 +111,12 @@ const FacultyNavbar = () => {
                       <div className="flex items-center justify-between">
                         <div>
                           <p className={`text-sm font-semibold ${
-                            isActive ? 'text-white' : 'text-gray-800 group-hover:text-purple-800'
+                            isActive ? 'text-white' : 'text-gray-800 group-hover:text-[#4b37cd]'
                           }`}>
                             {item.label}
                           </p>
                           <p className={`text-xs ${
-                            isActive ? 'text-purple-100' : 'text-gray-500 group-hover:text-purple-600'
+                            isActive ? 'text-white/70' : 'text-gray-500 group-hover:text-[#4b37cd]/70'
                           }`}>
                             {item.description}
                           </p>
@@ -126,7 +126,7 @@ const FacultyNavbar = () => {
                           className={`transition-transform duration-200 ${
                             isActive 
                               ? 'text-white transform rotate-90' 
-                              : 'text-gray-400 group-hover:text-purple-500 group-hover:transform group-hover:translate-x-1'
+                              : 'text-gray-400 group-hover:text-[#4b37cd] group-hover:transform group-hover:translate-x-1'
                           }`}
                         />
                       </div>
@@ -139,10 +139,10 @@ const FacultyNavbar = () => {
         </div>
 
         {/* Faculty Info Card */}
-        <div className="bg-gradient-to-r from-gray-50 to-purple-50 rounded-xl p-4 border border-gray-200 shadow-sm">
+        <div className="bg-[#4b37cd]/10 rounded-xl p-4 border border-[#4b37cd]/20 shadow-sm">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-              <GraduationCap size={20} className="text-purple-600" />
+            <div className="w-10 h-10 bg-[#4b37cd]/20 rounded-full flex items-center justify-center">
+              <GraduationCap size={20} className="text-[#4b37cd]" />
             </div>
             <div className="flex-1">
               <p className="text-sm font-semibold text-gray-800">
